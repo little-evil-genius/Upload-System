@@ -1,5 +1,7 @@
 # Upload-System
-Dieses Plugin ermöglicht den Usern verschiedene Grafiken per internem Upload System hochzuladen. Auch kann eine Signatur-Datei hochgeladen werden.
+Dieses Plugin fügt eurem Forum ein internes Uploadsystem hinzu. Das hochladen von Datein/Grafiken funktioniert sowie das hochladen von Avataren im User-CP. Die hochgeladenen Datein werden auf dem Webspace gespeichert und können per Variable/Link über all eingebunden werden.<br>
+Adminestratoren können im ACP verschiedene Upload-Elemente erstellen. Wenn ein neues Element erstellt wird können verschiedene Kriterien festgelegt werden. Wie die zulässige Minimal und Maximal Größe, die Dateiformate, die Dateigröße in Kilobyte. Auch die Datein von den Usern verwalten, bearbeiten und gegebenfalls löschen. User haben die Möglichkeit die einzelnen Datein im Usercp auf einer extra Seite zu verwalten.<br>
+Außerdem kann das Team auch einstellen, ob User auch eine Signatur-Datei hochladen können und dann im bekannten Signatur-Feld einbinden können.
 
 # Datenbank-Änderungen
 hinzugefügte Tabelle:
