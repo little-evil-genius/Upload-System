@@ -188,6 +188,7 @@ function uploadsystem_install(){
         'sid'		=> '-2',
         'dateline'	=> TIME_NOW
     );
+    $db->insert_query("templates", $insert_array);
 
     $insert_array = array(
         'title'		=> 'uploadsystem_usercp_element',
@@ -212,6 +213,7 @@ function uploadsystem_install(){
         'sid'		=> '-2',
         'dateline'	=> TIME_NOW
     );
+    $db->insert_query("templates", $insert_array);
 
     $insert_array = array(
         'title'		=> 'uploadsystem_usercp_element_remove',
@@ -219,6 +221,7 @@ function uploadsystem_install(){
         'sid'		=> '-2',
         'dateline'	=> TIME_NOW
     );
+    $db->insert_query("templates", $insert_array);
 
     $insert_array = array(
         'title'		=> 'uploadsystem_usercp_element_upload',
@@ -242,6 +245,7 @@ function uploadsystem_install(){
         'sid'		=> '-2',
         'dateline'	=> TIME_NOW
     );
+    $db->insert_query("templates", $insert_array);
 
     $insert_array = array(
         'title'		=> 'uploadsystem_usercp_nav',
@@ -253,6 +257,7 @@ function uploadsystem_install(){
         'sid'		=> '-2',
         'dateline'	=> TIME_NOW
     );
+    $db->insert_query("templates", $insert_array);
 
     $insert_array = array(
         'title'		=> 'uploadsystem_usercp_signatur',
@@ -281,6 +286,7 @@ function uploadsystem_install(){
         'sid'		=> '-2',
         'dateline'	=> TIME_NOW
     );
+    $db->insert_query("templates", $insert_array);
 
     $insert_array = array(
         'title'		=> 'uploadsystem_usercp_signatur_remove',
@@ -288,6 +294,7 @@ function uploadsystem_install(){
         'sid'		=> '-2',
         'dateline'	=> TIME_NOW
     );
+    $db->insert_query("templates", $insert_array);
 
     require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
 
@@ -453,6 +460,28 @@ function uploadsystem_uninstall(){
 	while($theme = $db->fetch_array($query)) {
 		update_theme_stylesheet_list($theme['tid']);
 	}
+}
+ 
+// Diese Funktion wird aufgerufen, wenn das Plugin aktiviert wird.
+function uploadsystem_activate() {
+    
+    global $db, $cache;
+    
+    require MYBB_ROOT."/inc/adminfunctions_templates.php";
+    
+    find_replace_templatesets('usercp_editsig', '#'.preg_quote('<form action="usercp.php" method="post">').'#', '<form action="usercp.php" method="post" enctype="multipart/form-data">');
+    find_replace_templatesets('usercp_editsig', '#'.preg_quote('<tr><td class="trow2"><span class="smalltext">{$lang->edit_sig_note2}</span></td>').'#', '{$upload_signatur} <tr><td class="trow2"><span class="smalltext">{$lang->edit_sig_note2}</span></td>');
+}
+ 
+// Diese Funktion wird aufgerufen, wenn das Plugin deaktiviert wird.
+function uploadsystem_deactivate() {
+    
+    global $db, $cache;
+    
+    require MYBB_ROOT."/inc/adminfunctions_templates.php";
+
+    find_replace_templatesets("usercp_editsig", "#".preg_quote(' enctype="multipart/form-data"')."#i", '', 0);
+    find_replace_templatesets("usercp_editsig", "#".preg_quote('{$upload_signatur}')."#i", '', 0);
 }
 
 #####################################
@@ -2455,7 +2484,5 @@ function uploadsystem_editsig(){
         $remove = "";
     }
 
-
     eval("\$upload_signatur .= \"".$templates->get("uploadsystem_usercp_signatur")."\";");	
-
 }
