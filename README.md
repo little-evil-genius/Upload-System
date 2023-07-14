@@ -36,12 +36,27 @@ Alle Templates wurden ohne Tabellen-Struktur gecodet. Das Layout wurde auf ein M
 # Neues CSS - uploadsystem.css
 Es wird automatisch in jedes bestehende und neue Design hinzugefügt. Man sollte es einfach einmal abspeichern, bevor man dies im Board mit der Untersuchungsfunktion bearbeiten will, da es dann passieren kann, dass das CSS für dieses Plugin in einen anderen Stylesheet gerutscht ist, obwohl es im ACP richtig ist.
 
+# Neuer Ordner - uploadsystem
+Es wurde ein neuer Ordner mit dem Namen uploadsystem im Ordner uploads erstellt. In diesem Ordner liegt schon der Ordner 'signatur' und bei jedem Upload-Element wird ein Ordner mit dem Identifikator erstelle. Die hochgeladenen Datein der User werden auch in den entsprechenden Ordner gespeichert.
+
+# Benutzergruppen-Berechtigungen setzen
+Damit alle Admin-Accounts Zugriff auf die Verwaltung vom Uploadsystem haben im ACP, müssen unter dem Reiter Benutzer & Gruppen » Administrator-Berechtigungen » Benutzergruppen-Berechtigungen die Berechtigungen einmal angepasst werden. Die Berechtigungen für das Uploadsystem befinden sich im Tab 'Tools & Verwaltung'.
+
+# Datenbank aktualsieren
+Bevor das Plugin in Betrieb genommen werden kann muss einmal die Datenbank-Tabelle PRÄFIX_uploadfiles aktualsierst werden. Damit alle bisherigen Accounts auch in der Tabelle stehen und diese Accounts Datein hochladen und speichern können. Dafür muss im ACP der Reiter Datenbank aktualisieren (index.php?module=tools-uploadsystem&action=usercheck) im Uploadsystem aufgerufen werden. Dort muss man nur auf den Button drücken und das einfügen der Accounts erfolgt automatisch. Wenn ein neuer Account registiertet wird werden die entsprechenden Felder direkt für diesen neuen Account angelegt. So muss man diese Aktualisierung nur einmal am Anfang ausführen!
+
+# Account löschen
+Damit die Löschung der Daten in der Datenbank und von den Datein vom Webspace richtig funktioniert müssen Accounts über das Popup "Optionen" im ACP gelöscht werden. Im ACP werden alle Accounts unter dem Reiter Benutzer & Gruppen > Benutzer aufgelistet. Und bei jedem Account befindet sich rechts ein Optionen Button. Wenn man diesen druckt erscheint eine Auswahl von verschiedenen Möglichkeiten. Über diese Variante müssen Accounts gelöscht werden, damit das automatische Löschen der Upload Informationen funktioniert.
+
 # Links
 <b>ACP</b><br>
 index.php?module=tools-uploadsystem<br>
 <br>
 <b>User-CP</b><br>
-usercp.php?action=uploadsystem
+usercp.php?action=uploadsystem<br>
+<br>
+<b>Datein</b><br>
+Forenlink/upload/uploadsystem/identification/identification_uid.<i>dateiformat</i>
 
 # Variabeln für Templates
 <b>Postbit</b><br>
@@ -57,4 +72,12 @@ usercp.php?action=uploadsystem
 {$upload_data['identification']}
 
 # Demo
+# ACP
+<img src="https://stormborn.at/plugins/uploadsystem_acp_overview.png">
+<img src="https://stormborn.at/plugins/uploadsystem_acp_add.png">
+<img src="https://stormborn.at/plugins/uploadsystem_acp_userEdit.png">
+<img src="https://stormborn.at/plugins/uploadsystem_acp_usercheck.png">
 
+# User-CP
+<img src="https://stormborn.at/plugins/uploadsystem_ucp.png">
+<img src="https://stormborn.at/plugins/uploadsystem_ucp_signatur.png">
