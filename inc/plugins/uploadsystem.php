@@ -121,7 +121,7 @@ function uploadsystem_install(){
         ),
         'uploadsystem_signatur_size' => array(
             'title' => 'Maximale Datei-Größe',
-            'description' => 'Die maximale Dateigröße (in Kilobyte) für hochgeladene Signaturen beträgt? Der Defaultwert beträgt 5 MB.',
+            'description' => 'Die maximale Dateigröße (in Kilobyte) für hochgeladene Signaturen beträgt (0 = Keine Beschränkung)? Der Defaultwert beträgt 5 MB.',
             'optionscode' => 'text',
             'value' => '5120', // Default
             'disporder' => 4
@@ -1470,9 +1470,11 @@ function uploadsystem_admin_manage() {
                     }
             
                     // Überprüfung der Dateigröße
-                    $max_size = $bytesize*1024; 
-                    if($_FILES[$input_name]['size'] > $max_size) {
-                        $errors[] = $lang->sprintf($lang->uploadsystem_manage_edit_user_error_upload_size, get_friendly_size($max_size));
+                    if ($bytesize > 0) {
+                        $max_size = $bytesize*1024; 
+                        if($_FILES[$input_name]['size'] > $max_size) {
+                            $errors[] = $lang->sprintf($lang->uploadsystem_manage_edit_user_error_upload_size, get_friendly_size($max_size));
+                        }
                     }
                     
                     // Überprüfung der Dateiendung    
@@ -2037,9 +2039,11 @@ function uploadsystem_usercp() {
         }
 
         // Überprüfung der Dateigröße
-        $max_size = $bytesize*1024; 
-        if($_FILES[$input_name]['size'] > $max_size) {
-            $uploadsystem_error[] = $lang->sprintf($lang->uploadsystem_error_upload_size, get_friendly_size($max_size));
+        if ($bytesize > 0) {
+            $max_size = $bytesize*1024; 
+            if($_FILES[$input_name]['size'] > $max_size) {
+                $uploadsystem_error[] = $lang->sprintf($lang->uploadsystem_error_upload_size, get_friendly_size($max_size));
+            }
         }
         
         // Überprüfung der Dateiendung    
@@ -2397,9 +2401,11 @@ function uploadsystem_uploadsig(){
         }
 
         // Überprüfung der Dateigröße
-        $max_size = $signatur_size*1024; 
-        if($_FILES['signaturlink']['size'] > $max_size) {
-            $error[] = $lang->sprintf($lang->uploadsystem_signatur_error_upload_size, get_friendly_size($max_size));
+        if ($signatur_size > 0) {
+            $max_size = $signatur_size*1024; 
+            if($_FILES['signaturlink']['size'] > $max_size) {
+                $error[] = $lang->sprintf($lang->uploadsystem_signatur_error_upload_size, get_friendly_size($max_size));
+            }
         }
         
         // Überprüfung der Dateiendung    
@@ -2484,5 +2490,8 @@ function uploadsystem_editsig(){
         $remove = "";
     }
 
+
     eval("\$upload_signatur .= \"".$templates->get("uploadsystem_usercp_signatur")."\";");	
+
 }
+
