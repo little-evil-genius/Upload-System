@@ -8,12 +8,12 @@ $l['uploadsystem_usercp_element_dims_maxmin'] = "Die Datei kann eine Größe von
 $l['uploadsystem_usercp_element_dims_min'] = "Die <i>minimal</i> zulässige Größe beträgt {1} Pixel.";
 $l['uploadsystem_usercp_element_dims_one'] = "Die zulässige Größe beträgt {1} Pixel.";
 $l['uploadsystem_usercp_element_square'] = "Die Datei muss <b>quadratisch</b> sein.";
-$l['uploadsystem_usercp_element_extensions_plural'] = "Die zulässigen sind {1} Dateiformate.";
-$l['uploadsystem_usercp_element_extensions_singular'] = "Das zulässige ist das {1} Dateiformat.";
+$l['uploadsystem_usercp_element_extensions_plural'] = "Es sind {1} -Dateien zulässig.";
+$l['uploadsystem_usercp_element_extensions_singular'] = "Es sind nur {1} -Dateien zulässig.";
 $l['uploadsystem_usercp_element_size'] = "Die maximal zulässige Dateigröße beträgt {1}.";
 $l['uploadsystem_usercp_element_notice'] = "<b>Du benutzt derzeit ein hochgeladenes Bild. Wenn du ein anderes Bild wählst, wird das ältere Bild vom Server gelöscht.</b>";
 $l['uploadsystem_usercp_element_upload_headline'] = "{1} hochladen:";
-$l['uploadsystem_usercp_element_upload_subline'] = "{1} von eigenem Rechner hochladen.";
+$l['uploadsystem_usercp_element_upload_subline'] = "Datei von eigenem Rechner hochladen.";
 
 $l['uploadsystem_usercp_element_button_add'] = "{1} hochladen";
 $l['uploadsystem_usercp_element_button_change'] = "{1} ändern";
