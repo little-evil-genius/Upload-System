@@ -62,16 +62,28 @@ Forenlink/upload/uploadsystem/identification/identification_uid.<i>dateiformat</
 
 # Variabeln für Templates
 <b>Postbit</b><br>
+Dateiname + Pfad <br>
 {$post['identification']}<br>
+Nur Dateiname (relevant für if Abfragen) <br>
+{$post['files_identification']}<br>
 <br>
 <b>Mitgliederliste</b><br>
+Dateiname + Pfad <br>
 {$user['identification']}<br>
+Nur Dateiname (relevant für if Abfragen) <br>
+{$user['files_identification']}<br>
 <br>
 <b>Profil</b><br>
+Dateiname + Pfad <br>
 {$memprofile['identification']}<br>
+Nur Dateiname (relevant für if Abfragen) <br>
+{$memprofile['files_identification']}<br>
 <br>
 <b>Global</b><br>
-{$upload_data['identification']}
+Dateiname + Pfad <br>
+{$upload_data['identification']}<br>
+Nur Dateiname (relevant für if Abfragen) <br>
+{$upload_data['files_identification']}
 
 # Demo
 # ACP
