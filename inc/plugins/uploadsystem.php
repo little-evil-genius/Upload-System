@@ -20,9 +20,9 @@ $plugins->add_hook('usercp_menu', 'uploadsystem_nav', 40);
 $plugins->add_hook('usercp_start', 'uploadsystem_usercp');
 $plugins->add_hook("fetch_wol_activity_end", "uploadsystem_online_activity");
 $plugins->add_hook("build_friendly_wol_location_end", "uploadsystem_online_location");
-$plugins->add_hook("postbit", "uploadsystem_postbit");
-$plugins->add_hook("memberlist_user", "uploadsystem_memberlist");
-$plugins->add_hook("member_profile_end", "uploadsystem_memberprofile");
+$plugins->add_hook("postbit", "uploadsystem_postbit", 0);
+$plugins->add_hook("memberlist_user", "uploadsystem_memberlist", 0);
+$plugins->add_hook("member_profile_end", "uploadsystem_memberprofile", 0);
 $plugins->add_hook("global_start", "uploadsystem_global");
 $plugins->add_hook("usercp_do_editsig_start", "uploadsystem_uploadsig");
 $plugins->add_hook("usercp_editsig_end", "uploadsystem_editsig"); 
@@ -2290,6 +2290,9 @@ function uploadsystem_global(){
         // Pfad
         $path = $db->fetch_field($db->simple_select("uploadsystem", "path", "identification = '".$identification."'"), "path");
 
+        $arraylabel = "files_{$identification}";
+        $upload_data[$arraylabel] = $fieldvalue;
+
         $upload_data[$identification] = $path.$fieldvalue;
     }
 
@@ -2319,9 +2322,13 @@ function uploadsystem_build_view($uid){
         // Pfad
         $path = $db->fetch_field($db->simple_select("uploadsystem", "path", "identification = '".$identification."'"), "path");
 
-        // Variable {$variable['identification']}
+        // Dateiname + Pfad {$variable['identification']}
         $arraylabel = $identification;
         $array[$arraylabel] = $path.$fieldvalue;
+
+        // nur Datei  {$variable['label_vorname']}
+        $arraylabel = "files_{$identification}";
+        $array[$arraylabel] = $fieldvalue;
 
     }
 
@@ -2494,4 +2501,3 @@ function uploadsystem_editsig(){
     eval("\$upload_signatur .= \"".$templates->get("uploadsystem_usercp_signatur")."\";");	
 
 }
-
