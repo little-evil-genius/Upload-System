@@ -31,7 +31,7 @@ $plugins->add_hook("usercp_editsig_end", "uploadsystem_editsig");
 function uploadsystem_info(){
 	return array(
 		"name"		=> "Upload-System",
-		"description"	=> "Dieses Plugin ermöglicht den Usern verschiedene Grafiken per internem Upload System hochzuladen. Auch kann eine Signatur-Datei hochgeladen werden.",
+		"description"	=> "Dieses Plugin ermöglicht den Usern verschiedene Grafiken per internem Upload-System hochzuladen. Auch kann eine Signatur-Datei hochgeladen werden.",
 		"website"	=> "https://github.com/little-evil-genius",
 		"author"	=> "little.evil.genius",
 		"authorsite"	=> "https://storming-gates.de/member.php?action=profile&uid=1712",
@@ -100,20 +100,20 @@ function uploadsystem_install(){
     $setting_array = array(
 		'uploadsystem_allowed_extensions' => array(
 			'title' => 'Erlaubte Dateitypen',
-			'description' => 'Welche Dateitypen dürfen allgemein über das Upload System hochgeladen werden?',
+			'description' => 'Welche Dateitypen dürfen allgemein über das Upload-System hochgeladen werden?',
 			'optionscode' => 'text',
 			'value' => 'png, jpg, jpeg, gif, bmp', // Default
 			'disporder' => 1
 		),
 		'uploadsystem_signatur' => array(
 			'title' => 'Signaturen hochladen',
-			'description' => 'Dürfen User auch ihre Signaturen über das Upload System hochladen?',
+			'description' => 'Dürfen User auch ihre Signaturen über das Upload-System hochladen?',
 			'optionscode' => 'yesno',
 			'value' => '0', // Default
 			'disporder' => 2
 		),
         'uploadsystem_signatur_max' => array(
-            'title' => 'maximale Signatur Größe',
+            'title' => 'maximale Signaturgröße',
             'description' => "Wie groß dürfen Signaturen maximal sein? Breite und Höhe getrennt durch x oder |. Wenn das Feld leer bleibt, wird die Größe nicht beschränkt.",
             'optionscode' => 'text',
             'value' => '500x250', // Default
@@ -121,7 +121,7 @@ function uploadsystem_install(){
         ),
         'uploadsystem_signatur_size' => array(
             'title' => 'Maximale Datei-Größe',
-            'description' => 'Die maximale Dateigröße (in Kilobyte) für hochgeladene Signaturen beträgt (0 = Keine Beschränkung)? Der Defaultwert beträgt 5 MB.',
+            'description' => 'Die maximale Dateigröße (in Kilobyte) für hochgeladene Signaturen beträgt (0 = Keine Beschränkung)? Der Defaultwert beträgt 5 MB.<br>Gewünschte MBx1024 = KB Wert. 5x1024 = 5120',
             'optionscode' => 'text',
             'value' => '5120', // Default
             'disporder' => 4
