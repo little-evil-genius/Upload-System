@@ -35,7 +35,7 @@ $l['uploadsystem_redirect_remove'] = "Die Datei ({1}) wurde erfolgreich gelösch
 $l['uploadsystem_usercp_signatur_headline'] = "Signatur-Datei hochladen:";
 $l['uploadsystem_usercp_signatur_link_headline'] = "Deine Signatur-Datei:";
 $l['uploadsystem_usercp_signatur_nofile'] = "Aktuell hast du keine Signatur-Datei hochgeladen.";
-$l['uploadsystem_usercp_signatur_notice'] = "Wenn du ein andere Datei wählst, wird die ältere Datei vom Server gelöscht.";
+$l['uploadsystem_usercp_signatur_notice'] = "Wenn du eine andere Datei wählst, wird die ältere Datei vom Server gelöscht.";
 
 $l['uploadsystem_usercp_signatur_button_add'] = "Signatur-Datei hochladen";
 $l['uploadsystem_usercp_signatur_button_change'] = "Signatur-Datei ändern";
