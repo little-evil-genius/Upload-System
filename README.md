@@ -100,10 +100,13 @@ In das Template postbit und postbit_classic würde dann die Variable {$post['eig
 <b>HINWEIS</b><br>
 Solche If-Abfragen, sollten sie nicht über das Plugin 'php in tpl' erfolgen, sollten <b>NACH</b> folgenden Stellen in der PHP eingefügt werden:<br>
 <b>Postbit (& PN & Postbit Vorschau):</b><br>
+<b>Datei</b> inc/functions_post.php<br>
 $post = $plugins->run_hooks("postbit", $post);<br><br>
 <b>Mitgliederliste:</b><br>
+<b>Datei:</b> memberlist.php<br>
 $user = $plugins->run_hooks("memberlist_user", $user);<br><br>
 <b>Profil:</b><br>
+<b>Datei:</b> member.php<br>
 $plugins->run_hooks("member_profile_end");
 
 # Demo
