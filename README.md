@@ -97,8 +97,8 @@ if ($post['files_identification'] != "") {
 ```
 <br>
 In das Template postbit und postbit_classic würde dann die Variable {$post['eigener_Name']} an die gewünschte Stelle kommen. Auf den Webspace würde dann in den oder die entsprechende/n Grafiken-Ordner für das Design eine Datei mit dem Namen eigenerName_default.png kommen. <br><br>
-<b>HINWEIS</b>
-Solche If-Abfragen, sollten sie nicht über das Plugin 'php in tpl' erfolgen, sollten <b>NACH</b> folgenden Stellen in der PHP eingefügt werden:
+<b>HINWEIS</b><br>
+Solche If-Abfragen, sollten sie nicht über das Plugin 'php in tpl' erfolgen, sollten <b>NACH</b> folgenden Stellen in der PHP eingefügt werden:<br>
 <b>Postbit (& PN & Postbit Vorschau):</b><br>
 $post = $plugins->run_hooks("postbit", $post);<br><br>
 <b>Mitgliederliste:</b><br>
