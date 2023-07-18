@@ -116,4 +116,3 @@ $l['uploadsystem_manage_edit_user_logadmin_remove'] = "Daten von {1} löschen ";
 $l['uploadsystem_manage_edit_user_flash_remove'] = "Die Datei ({1}) wurde erfolgreich gelöscht.";
 $l['uploadsystem_manage_edit_user_logadmin_upload'] = "Daten von {1} bearbeitet ";
 $l['uploadsystem_manage_edit_user_flash_upload'] = "Die Datei ({1}) wurde erfolgreich hochgeladen.";
-?>
