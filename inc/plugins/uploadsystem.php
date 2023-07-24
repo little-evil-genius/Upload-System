@@ -2096,6 +2096,8 @@ function uploadsystem_usercp() {
         ORDER BY disporder ASC, name ASC
         ");
 
+        $upload_element = "";
+        $upload = "";
         while($all = $db->fetch_array($allElements)) {
 
             // LEER LAUFEN LASSEN
@@ -2112,6 +2114,8 @@ function uploadsystem_usercp() {
             $file_name = "";
             $file_url = "";
             $headline = "";
+            $remove = "";
+            $remove_button = "";
 
             // MIT INFOS FÜLLEN
             $usid = $all['usid'];
@@ -2143,7 +2147,7 @@ function uploadsystem_usercp() {
                 $lang->uploadsystem_usercp_element_button = $lang->sprintf($lang->uploadsystem_usercp_element_button_change, $name);
 
                 
-                $lang->uploadsystem_usercp_element_button_remove = $lang->sprintf($lang->uploadsystem_usercp_element_button_remove, $name);
+                $remove_button = $lang->sprintf($lang->uploadsystem_usercp_element_button_remove, $name);
                 eval("\$remove = \"".$templates->get("uploadsystem_usercp_element_remove")."\";");
             } else {
                 // Placeholder
@@ -2152,7 +2156,8 @@ function uploadsystem_usercp() {
 
                 $element_notice = "";
                 $lang->uploadsystem_usercp_element_button = $lang->sprintf($lang->uploadsystem_usercp_element_button_add, $name);
-
+                
+                $remove_button = "";
                 $remove = "";
             }
 
