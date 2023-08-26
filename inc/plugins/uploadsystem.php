@@ -1179,7 +1179,7 @@ function uploadsystem_admin_manage() {
 				admin_redirect("index.php?module=tools-uploadsystem");
 			} else {
 				$page->output_confirm_action(
-					"index.php?module=tools-uploadsystem&amp;action=delete_element&amp;rtid=".$rtid,
+					"index.php?module=tools-uploadsystem&amp;action=delete_element&amp;usid=".$usid,
 					$lang->uploadsystem_manage_overview_delete_notice
 				);
 			}
