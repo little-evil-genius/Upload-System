@@ -564,7 +564,7 @@ function uploadsystem_admin_manage() {
 		if ($mybb->get_input('action') == "" || !$mybb->get_input('action')) {
 
 			// Optionen im Header bilden
-			$page->output_header($lang->uploadsystem_manage_header." - ".$lang->uploadsystem_manage_header);
+			$page->output_header($lang->uploadsystem_manage_header." - ".$lang->uploadsystem_manage_overview);
 
 			// Übersichtsseite Button
 			$sub_tabs['uploadsystem'] = [
