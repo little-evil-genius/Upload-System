@@ -2147,7 +2147,7 @@ function uploadsystem_usercp() {
                 $lang->uploadsystem_usercp_element_button = $lang->sprintf($lang->uploadsystem_usercp_element_button_change, $name);
 
                 
-                $remove_button = $lang->sprintf($lang->uploadsystem_usercp_element_button_remove, $name);
+                $lang->uploadsystem_usercp_element_button_remove = $lang->sprintf($lang->uploadsystem_usercp_element_button_remove, $name);
                 eval("\$remove = \"".$templates->get("uploadsystem_usercp_element_remove")."\";");
             } else {
                 // Placeholder
@@ -2157,7 +2157,7 @@ function uploadsystem_usercp() {
                 $element_notice = "";
                 $lang->uploadsystem_usercp_element_button = $lang->sprintf($lang->uploadsystem_usercp_element_button_add, $name);
                 
-                $remove_button = "";
+                $lang->uploadsystem_usercp_element_button_remove = "";
                 $remove = "";
             }
 
