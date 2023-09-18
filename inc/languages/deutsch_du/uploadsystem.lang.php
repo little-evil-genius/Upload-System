@@ -1,7 +1,9 @@
 <?php
 $l['uploadsystem_usercp_nav'] = "Uploadsystem";
 $l['uploadsystem_usercp'] = "Uploadsystem";
-$l['uploadsystem_usercp_desc'] = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
+$l['uploadsystem_usercp_desc'] = "Hier habt ihr die Möglichkeit verschiedene Grafiken fürs Forum hochzuladen. Das hochladen funktioniert wie beim Avatar. Datei auswählen und auf den entsprechenden Button drücken.<br>
+Die Elemente haben unterschiedliche Kriterien, welche ihr euch vor dem hochladen durchlesen solltet, damit ihr euch nicht wundert, warum es zu Fehlern kommt. Ihr habt immer die Möglichkeit eurere Grafik zu ändern oder gar zu löschen.<br>
+Bei Fragen oder Problemen meldet euch einfach beim Team.";
 
 $l['uploadsystem_usercp_element_headline'] = "{1} ändern";
 $l['uploadsystem_usercp_element_dims_maxmin'] = "Die Datei kann eine Größe von {1} bis {2} Pixel besitzen.";
