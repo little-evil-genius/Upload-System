@@ -217,7 +217,7 @@ function uploadsystem_install(){
 
     $insert_array = array(
         'title'		=> 'uploadsystem_usercp_element_remove',
-        'template'	=> $db->escape_string('<input type="submit" value="{$lang->uploadsystem_usercp_element_button_remove}" name="remove_upload" class="button">'),
+        'template'	=> $db->escape_string('<input type="submit" value="{$remove_button}" name="remove_upload" class="button">'),
         'sid'		=> '-2',
         'dateline'	=> TIME_NOW
     );
@@ -2147,7 +2147,7 @@ function uploadsystem_usercp() {
                 $lang->uploadsystem_usercp_element_button = $lang->sprintf($lang->uploadsystem_usercp_element_button_change, $name);
 
                 
-                $lang->uploadsystem_usercp_element_button_remove = $lang->sprintf($lang->uploadsystem_usercp_element_button_remove, $name);
+                $remove_button = $lang->sprintf($lang->uploadsystem_usercp_element_button_remove, $name);
                 eval("\$remove = \"".$templates->get("uploadsystem_usercp_element_remove")."\";");
             } else {
                 // Placeholder
@@ -2157,7 +2157,7 @@ function uploadsystem_usercp() {
                 $element_notice = "";
                 $lang->uploadsystem_usercp_element_button = $lang->sprintf($lang->uploadsystem_usercp_element_button_add, $name);
                 
-                $lang->uploadsystem_usercp_element_button_remove = "";
+                $remove_button = "";
                 $remove = "";
             }
 
