@@ -2346,7 +2346,7 @@ function uploadsystem_uploadsig(){
     global $mybb, $db, $lang, $error;
 
     // EINSTELLUNGEN
-    $allowed_extensions = $mybb->settings['uploadsystem_allowed_extensions'];
+    $allowed_extensions = $mybb->settings['uploadsystem_signatur_extensions'];
     $extensions_string = str_replace(", ", ",", $allowed_extensions);
     $extensions_values = explode (",", $extensions_string);
     $signatur_max = $mybb->settings['uploadsystem_signatur_max'];
