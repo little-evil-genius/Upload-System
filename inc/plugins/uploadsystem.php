@@ -1293,7 +1293,7 @@ function uploadsystem_admin_manage() {
             $form->end();
             // Multipage
             $search_url = htmlspecialchars_uni(
-                "index.php?module=tools-uploadsystem&action=userfiles".$mybb->input['perpage']
+                "index.php?module=tools-uploadsystem&action=userfiles".$mybb->get_input('perpage')
             );
             $multipage = multipage($users_count, $perpage, $pageview, $search_url);
             echo $multipage;
@@ -2214,7 +2214,7 @@ function uploadsystem_online_activity($user_activity) {
     global $parameters, $user;
 
     $split_loc = explode(".php", $user_activity['location']);
-    if($split_loc[0] == $user['location']) {
+    if(isset($user['location']) && $split_loc[0] == $user['location']) { 
         $filename = '';
     } else {
         $filename = my_substr($split_loc[0], -my_strpos(strrev($split_loc[0]), "/"));
