@@ -1285,7 +1285,7 @@ function uploadsystem_admin_manage() {
 
 			// keine User vorhanden
 			if($db->num_rows($query_allUser) == 0){
-                $form_container->output_cell($lang->ploadsystem_manage_userfiles_no_user, array("colspan" => 2));
+                $form_container->output_cell($lang->uploadsystem_manage_userfiles_no_user, array("colspan" => 2));
                 $form_container->construct_row();
 			}
 
