@@ -1,4 +1,5 @@
 <?php
+$l['uploadsystem_error_rpgstuff'] = "Das ACP Modul <a href=\"https://github.com/little-evil-genius/rpgstuff_modul\" target=\"_blank\">\"RPG Stuff\"</a> muss vorhanden sein!";
 $l['uploadsystem_permission'] = "Kann das Uploadsystem verwalten?";
 $l['uploadsystem_manage'] = "Uploadsystem";
 $l['uploadsystem_manage_header'] = "Uploadsystem verwalten";
