@@ -10,10 +10,12 @@ if(!defined("IN_MYBB"))
 // HOOKS
 $plugins->add_hook('admin_config_settings_change', 'uploadsystem_settings_change');
 $plugins->add_hook('admin_settings_print_peekers', 'uploadsystem_settings_peek');
-$plugins->add_hook("admin_tools_action_handler", "uploadsystem_admin_tools_action_handler");
-$plugins->add_hook("admin_tools_permissions", "uploadsystem_admin_tools_permissions");
-$plugins->add_hook("admin_tools_menu", "uploadsystem_admin_tools_menu");
+$plugins->add_hook("admin_rpgstuff_action_handler", "uploadsystem_admin_rpgstuff_action_handler");
+$plugins->add_hook("admin_rpgstuff_permissions", "uploadsystem_admin_rpgstuff_permissions");
+$plugins->add_hook("admin_rpgstuff_menu", "uploadsystem_admin_rpgstuff_menu");
 $plugins->add_hook("admin_load", "uploadsystem_admin_manage");
+$plugins->add_hook('admin_rpgstuff_update_stylesheet', 'uploadsystem_admin_update_stylesheet');
+$plugins->add_hook('admin_rpgstuff_update_plugin', 'uploadsystem_admin_update_plugin');
 $plugins->add_hook("datahandler_user_insert_end", "uploadsystem_user_insert");
 $plugins->add_hook("admin_user_users_delete_commit_end", "uploadsystem_user_delete");
 $plugins->add_hook('usercp_menu', 'uploadsystem_nav', 40);
@@ -35,7 +37,7 @@ function uploadsystem_info(){
 		"website"	=> "https://github.com/little-evil-genius",
 		"author"	=> "little.evil.genius",
 		"authorsite"	=> "https://storming-gates.de/member.php?action=profile&uid=1712",
-		"version"	=> "1.0.1",
+		"version"	=> "1.0.2",
 		"compatibility" => "18*"
 	);
 }
@@ -43,47 +45,22 @@ function uploadsystem_info(){
 // Diese Funktion wird aufgerufen, wenn das Plugin installiert wird (optional).
 function uploadsystem_install(){
     
-    global $db, $cache, $mybb;
+    global $db, $cache, $mybb, $lang;
+
+    // SPRACHDATEI
+    $lang->load("uploadsystem");
+
+    // RPG Stuff Modul muss vorhanden sein
+    if (!file_exists(MYBB_ADMIN_DIR."/modules/rpgstuff/module_meta.php")) {
+		flash_message($lang->uploadsystem_error_rpgstuff, 'error');
+		admin_redirect('index.php?module=config-plugins');
+	}
 
     // DATENBANKEN ERSTELLEN
-    // Upload Möglichkeiten
-    $db->query("CREATE TABLE ".TABLE_PREFIX."uploadsystem(
-        `usid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-        `disporder` int(10) default '0',
-		`identification` VARCHAR(250) COLLATE utf8_general_ci  NOT NULL,
-        `name` VARCHAR(250) COLLATE utf8_general_ci NOT NULL,
-        `description` VARCHAR(500) COLLATE utf8_general_ci NOT NULL,
-        `path` text COLLATE utf8_general_ci NOT NULL,
-        `allowextensions` VARCHAR(100) COLLATE utf8_general_ci NOT NULL,
-        `mindims` VARCHAR(100) COLLATE utf8_general_ci NOT NULL,
-        `maxdims` VARCHAR(100) COLLATE utf8_general_ci NOT NULL default '',
-        `square` int(1) unsigned NOT NULL default '0',
-        `bytesize` VARCHAR(100) COLLATE utf8_general_ci NOT NULL default '5120',
-        PRIMARY KEY(`usid`),
-        KEY `usid` (`usid`)
-        )
-        ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1    "
-    );
+    uploadsystem_database();
 
-    // einzelne Datein
-    $db->query("CREATE TABLE ".TABLE_PREFIX."uploadfiles(
-        `ufid` int(10) unsigned NOT NULL default '0',
-        `signatur` TEXT COLLATE utf8_general_ci NOT NULL,
-        PRIMARY KEY(`ufid`),
-        KEY `ufid` (`ufid`)
-        )
-        ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1    "
-    );
-
-    // HAUPTVERZEICHNIS ERSTELLEN
-    if (!is_dir(MYBB_ROOT.'uploads/uploadsystem')) {
-        mkdir(MYBB_ROOT.'uploads/uploadsystem', 0777, true);
-    }
-
-    // SIGNATUR VERZEICHNIS ERSTELLEN
-    if (!is_dir(MYBB_ROOT.'uploads/uploadsystem/signatur') AND is_dir(MYBB_ROOT.'uploads/uploadsystem')) {
-        mkdir(MYBB_ROOT.'uploads/uploadsystem/signatur', 0777, true);
-    }
+    // VERZEICHNISSE ERSTELLEN
+    uploadsystem_directories();
 
     // EINSTELLUNGEN HINZUFÜGEN
     $maxdisporder = $db->fetch_field($db->query("SELECT MAX(disporder) FROM ".TABLE_PREFIX."settinggroups"), "MAX(disporder)");
@@ -91,57 +68,14 @@ function uploadsystem_install(){
         'name'          => 'uploadsystem',
         'title'         => 'Uploadsystem',
         'description'   => 'Einstellungen für das interne Uploadsystem',
-        'disporder'     => $maxdisporder,
+        'disporder'     => $maxdisporder+1,
         'isdefault'     => 0
-    );
-        
-    $gid = $db->insert_query("settinggroups", $setting_group); 
-        
-    $setting_array = array(
-		'uploadsystem_allowed_extensions' => array(
-			'title' => 'Erlaubte Dateitypen',
-			'description' => 'Welche Dateitypen dürfen allgemein über das Upload-System hochgeladen werden?',
-			'optionscode' => 'text',
-			'value' => 'png, jpg, jpeg, gif, bmp', // Default
-			'disporder' => 1
-		),
-		'uploadsystem_signatur' => array(
-			'title' => 'Signaturen hochladen',
-			'description' => 'Dürfen User auch ihre Signaturen über das Upload-System hochladen?',
-			'optionscode' => 'yesno',
-			'value' => '0', // Default
-			'disporder' => 2
-		),
-        'uploadsystem_signatur_max' => array(
-            'title' => 'maximale Signaturgröße',
-            'description' => "Wie groß dürfen Signaturen maximal sein? Breite und Höhe getrennt durch x oder |. Wenn das Feld leer bleibt, wird die Größe nicht beschränkt.",
-            'optionscode' => 'text',
-            'value' => '500x250', // Default
-            'disporder' => 3
-        ),
-        'uploadsystem_signatur_size' => array(
-            'title' => 'Maximale Datei-Größe',
-            'description' => 'Die maximale Dateigröße (in Kilobyte) für hochgeladene Signaturen beträgt (0 = Keine Beschränkung)? Der Defaultwert beträgt 5 MB.<br>Gewünschte MBx1024 = KB Wert. 5x1024 = 5120',
-            'optionscode' => 'text',
-            'value' => '5120', // Default
-            'disporder' => 4
-        ),
-        'uploadsystem_signatur_extensions' => array(
-            'title' => 'Erlaubte Dateitypen für Signaturen',
-            'description' => 'Welche Dateitypen dürfen für die Signaturen hochgeladen werden?',
-            'optionscode' => 'text',
-            'value' => 'png, jpg, jpeg', // Default
-            'disporder' => 5
-        ),
-    );
-        
-    foreach($setting_array as $name => $setting){
-        $setting['name'] = $name;
-        $setting['gid']  = $gid;
-        $db->insert_query('settings', $setting);  
-    }
-    rebuild_settings();
+    );  
+    $db->insert_query("settinggroups", $setting_group); 
 
+    // Einstellungen
+    uploadsystem_settings();
+    rebuild_settings();
 
 	// TEMPLATES ERSTELLEN
 	// Template Gruppe für jedes Design erstellen
@@ -149,266 +83,21 @@ function uploadsystem_install(){
         "prefix" => "uploadsystem",
         "title" => $db->escape_string("Uploadsystem"),
     );
-
     $db->insert_query("templategroups", $templategroup);
-
-    $insert_array = array(
-        'title'		=> 'uploadsystem_usercp',
-        'template'	=> $db->escape_string('<html>
-        <head>
-            <title>{$lang->user_cp} - {$lang->uploadsystem_usercp}</title>
-            {$headerinclude}
-        </head>
-        <body>
-            {$header}
-            <table width="100%" border="0" align="center">
-                <tr>
-                    {$usercpnav}
-                    <td valign="top">
-                        <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
-                            <tr>
-                                <td class="thead">
-                                    <strong>{$lang->uploadsystem_usercp}</strong>
-                                </td>
-                            </tr>
-                            {$uploadsystem_error}
-                            <tr>
-                                <td>
-                                    <div class="uploadsystem-desc">{$lang->uploadsystem_usercp_desc}</div>
-                                    {$upload_element}
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-            {$footer}
-        </body>
-     </html>'),
-        'sid'		=> '-2',
-        'dateline'	=> TIME_NOW
-    );
-    $db->insert_query("templates", $insert_array);
-
-    $insert_array = array(
-        'title'		=> 'uploadsystem_usercp_element',
-        'template'	=> $db->escape_string('<div class="uploadsystem_element">
-        <div class="uploadsystem_element_headline"><strong>{$headline}</strong></div>
-        <div class="uploadsystem_element_main">
-            <div class="uploadsystem_element_info">
-                {$description}</br></br>
-        {$dims} {$square}<br>
-        {$extensions}<br>
-        {$size}<br><br>
-        {$element_notice}
-        </div>
-        <div>
-        <div class="uploadsystem_element_preview" style="background:url(\'$file_url\');background-size: cover;width:{$minwidth}px;height:{$minheight}px;">
-            {$graphic_size}
-        </div>
-        </div>
-        </div>
-        {$upload}
-        </div>'),
-        'sid'		=> '-2',
-        'dateline'	=> TIME_NOW
-    );
-    $db->insert_query("templates", $insert_array);
-
-    $insert_array = array(
-        'title'		=> 'uploadsystem_usercp_element_remove',
-        'template'	=> $db->escape_string('<input type="submit" value="{$remove_button}" name="remove_upload" class="button">'),
-        'sid'		=> '-2',
-        'dateline'	=> TIME_NOW
-    );
-    $db->insert_query("templates", $insert_array);
-
-    $insert_array = array(
-        'title'		=> 'uploadsystem_usercp_element_upload',
-        'template'	=> $db->escape_string('<form method="post" action="usercp.php?action=uploadsystem" enctype="multipart/form-data">
-        <div class="uploadsystem_upload">
-            <div class="uploadsystem_upload_info">
-                <b>{$headline_upload}</b></br>
-            {$subline_upload}
-        </div>
-        <div class="uploadsystem_upload_input">
-            <input type="file" name="pic_{$identification}">
-        </div>
-        <div class="uploadsystem_upload_button">                            
-            <input type="hidden" name="usID" id="usID" value="{$usid}" />
-            <input type="hidden" name="action" value="do_upload">         
-            <input type="submit" value="{$lang->uploadsystem_usercp_element_button}" name="new_upload" class="button">
-            {$remove}
-        </div>
-        </div>
-        </form>'),
-        'sid'		=> '-2',
-        'dateline'	=> TIME_NOW
-    );
-    $db->insert_query("templates", $insert_array);
-
-    $insert_array = array(
-        'title'		=> 'uploadsystem_usercp_nav',
-        'template'	=> $db->escape_string('<tr>
-        <td class="trow1 smalltext">
-            <a href="usercp.php?action=uploadsystem" class="usercp_nav_item usercp_nav_subscriptions">{$lang->uploadsystem_usercp_nav}</a>
-        </td>
-        </tr>'),
-        'sid'		=> '-2',
-        'dateline'	=> TIME_NOW
-    );
-    $db->insert_query("templates", $insert_array);
-
-    $insert_array = array(
-        'title'		=> 'uploadsystem_usercp_signatur',
-        'template'	=> $db->escape_string('<tr>
-        <td class="trow2">
-            <b>{$lang->uploadsystem_usercp_signatur_headline}</b>
-        </td>
-        <td class="trow2">
-            <div class="uploadsystem_signatur">
-                <div class="uploadsystem_signatur_info">
-                    <b>{$lang->uploadsystem_usercp_signatur_link_headline}</b></br>
-                <span class="smalltext">{$file_url}</span>
-            </div>
-            <div class="uploadsystem_signatur_input">
-                <input type="file" name="signaturlink"><br>
-                <span class="smalltext">{$element_notice}</span>
-            </div>
-            <div class="uploadsystem_signatur_button"> 
-                <input type="hidden" name="action" value="do_editsig" />                    
-                <input type="submit" class="button" name="new_signatur" value="{$uploadsystem_usercp_signatur_button}" />
-                {$remove}
-            </div>
-            </div>
-            </td>
-            </tr>'),
-        'sid'		=> '-2',
-        'dateline'	=> TIME_NOW
-    );
-    $db->insert_query("templates", $insert_array);
-
-    $insert_array = array(
-        'title'		=> 'uploadsystem_usercp_signatur_remove',
-        'template'	=> $db->escape_string('<input type="submit" value="{$lang->uploadsystem_usercp_signatur_button_remove}" name="remove_signatur" class="button">'),
-        'sid'		=> '-2',
-        'dateline'	=> TIME_NOW
-    );
-    $db->insert_query("templates", $insert_array);
-
-    require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+    // Templates 
+    uploadsystem_templates();
 
     // STYLESHEET HINZUFÜGEN
-    $css = array(
-        'name' => 'uploadsystem.css',
-        'tid' => 1,
-        'attachedto' => '',
-        "stylesheet" => '.uploadsystem-desc {
-            text-align: justify;
-            line-height: 180%;
-            padding: 20px 40px;
-        }
-        
-        .uploadsystem_element {
-            margin-bottom: 10px;
-        }
-        
-        .uploadsystem_element:last-child {
-            margin-bottom: 0;
-        }
-        
-        .uploadsystem_element_headline {
-            background: #0f0f0f url(../../../images/tcat.png) repeat-x;
-            color: #fff;
-            border-top: 1px solid #444;
-            border-bottom: 1px solid #000;
-            padding: 6px;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-        
-        .uploadsystem_element_main {
-            display: flex;
-            gap: 10px;
-            flex-wrap: nowrap;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 10px;
-        }
-        
-        .uploadsystem_element_info {
-            text-align: justify;
-        }
-        
-        .uploadsystem_element_preview {
-            background-size: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #6f6d6d;
-            font-weight: bold;
-        }
-        
-        .uploadsystem_upload {
-            margin-top: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 0 10px;
-            align-items: center;
-        }
-        
-        .uploadsystem_upload_info {
-            width: 45%;
-            border-right: 1px solid;
-            border-color: #ddd;
-        }
-        
-        .uploadsystem_upload_input {
-            width: 53%;
-        }
-        
-        .uploadsystem_upload_button {
-            width: 100%;
-            text-align: center;
-        }
-        
-        .uploadsystem_signatur {
-            margin-top: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            padding: 0 10px;
-            align-items: center;
-        }
-        
-        .uploadsystem_signatur_info {
-            width: 54%;
-            border-right: 1px solid;
-            border-color: #ddd;
-        }
-        
-        .uploadsystem_signatur_input {
-            width: 44%;
-            padding-left: 10px;
-        }
-        
-        .uploadsystem_signatur_button {
-            width: 100%;
-            text-align: center;
-            margin-top: 10px;
-        }',
-        'cachefile' => $db->escape_string(str_replace('/', '', 'uploadsystem.css')),
-        'lastmodified' => time()
-    );
-    
+	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+    // Funktion
+    $css = uploadsystem_stylesheet();
     $sid = $db->insert_query("themestylesheets", $css);
-    $db->update_query("themestylesheets", array("cachefile" => "uploadsystem.css"), "sid = '".$sid."'", 1);
+	$db->update_query("themestylesheets", array("cachefile" => "uploadsystem.css"), "sid = '".$sid."'", 1);
 
-    $tids = $db->simple_select("themes", "tid");
-    while($theme = $db->fetch_array($tids)) {
-        update_theme_stylesheet_list($theme['tid']);
-    }
-
+	$tids = $db->simple_select("themes", "tid");
+	while($theme = $db->fetch_array($tids)) {
+		update_theme_stylesheet_list($theme['tid']);
+	}
 }
  
 // Funktion zur Überprüfung des Installationsstatus; liefert true zurürck, wenn Plugin installiert, sonst false (optional).
@@ -452,9 +141,8 @@ function uploadsystem_uninstall(){
     // VERZEICHNIS LÖSCHEN
     rmdir(MYBB_ROOT.'uploads/uploadsystem');
 
-	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
-
     // STYLESHEET ENTFERNEN
+	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
 	$db->delete_query("themestylesheets", "name = 'uploadsystem.css'");
 	$query = $db->simple_select("themes", "tid");
 	while($theme = $db->fetch_array($query)) {
@@ -508,12 +196,12 @@ function uploadsystem_settings_peek(&$peekers){
 
 // ADMIN BEREICH - KONFIGURATION //
 // action handler fürs acp konfigurieren
-function uploadsystem_admin_tools_action_handler(&$actions) {
+function uploadsystem_admin_rpgstuff_action_handler(&$actions) {
 	$actions['uploadsystem'] = array('active' => 'uploadsystem', 'file' => 'uploadsystem');
 }
 
 // Berechtigungen im ACP - Adminrechte
-function uploadsystem_admin_tools_permissions(&$admin_permissions) {
+function uploadsystem_admin_rpgstuff_permissions(&$admin_permissions) {
 	global $lang;
 	
     $lang->load('uploadsystem');
@@ -524,7 +212,7 @@ function uploadsystem_admin_tools_permissions(&$admin_permissions) {
 }
 
 // Menü einfügen
-function uploadsystem_admin_tools_menu(&$sub_menu) {
+function uploadsystem_admin_rpgstuff_menu(&$sub_menu) {
 	global $mybb, $lang;
 	
     $lang->load('uploadsystem');
@@ -532,7 +220,7 @@ function uploadsystem_admin_tools_menu(&$sub_menu) {
 	$sub_menu[] = [
 		"id" => "uploadsystem",
 		"title" => $lang->uploadsystem_manage,
-		"link" => "index.php?module=tools-uploadsystem"
+		"link" => "index.php?module=rpgstuff-uploadsystem"
 	];
 }
 
@@ -548,7 +236,7 @@ function uploadsystem_admin_manage() {
 
     // EINSTELLUNGEN
     $allowed_extensions = $mybb->settings['uploadsystem_allowed_extensions'];
-    $extensions_string = str_replace(", ", ",", $allowed_extensions);
+    $extensions_string = str_replace(", ", ",", strtolower($allowed_extensions).",".strtoupper($allowed_extensions));
     $extensions_values = explode (",", $extensions_string);
 
     if ($page->active_action != 'uploadsystem') {
@@ -556,9 +244,9 @@ function uploadsystem_admin_manage() {
 	}
 
 	// Add to page navigation
-	$page->add_breadcrumb_item($lang->uploadsystem_manage, "index.php?module=tools-uploadsystem");
+	$page->add_breadcrumb_item($lang->uploadsystem_manage, "index.php?module=rpgstuff-uploadsystem");
 
-	if ($run_module == 'tools' && $action_file == 'uploadsystem') {
+	if ($run_module == 'rpgstuff' && $action_file == 'uploadsystem') {
 
 		// ÜBERSICHT
 		if ($mybb->get_input('action') == "" || !$mybb->get_input('action')) {
@@ -569,25 +257,25 @@ function uploadsystem_admin_manage() {
 			// Übersichtsseite Button
 			$sub_tabs['uploadsystem'] = [
 				"title" => $lang->uploadsystem_manage_overview,
-				"link" => "index.php?module=tools-uploadsystem",
+				"link" => "index.php?module=rpgstuff-uploadsystem",
 				"description" => $lang->uploadsystem_manage_overview_desc
 			];
 			// Upload Hinzufüge Button
 			$sub_tabs['uploadsystem_upload_add'] = [
 				"title" => $lang->uploadsystem_manage_add_upload,
-				"link" => "index.php?module=tools-uploadsystem&amp;action=add_upload",
+				"link" => "index.php?module=rpgstuff-uploadsystem&amp;action=add_upload",
 				"description" => $lang->uploadsystem_manage_add_upload_desc
 			];
 			// Userdatein verwalten Button
 			$sub_tabs['uploadsystem_userfiles'] = [
 				"title" => $lang->uploadsystem_manage_userfiles,
-				"link" => "index.php?module=tools-uploadsystem&amp;action=userfiles",
+				"link" => "index.php?module=rpgstuff-uploadsystem&amp;action=userfiles",
 				"description" => $lang->uploadsystem_manage_userfiles_desc
 			];
 			// User in DB Button
 			$sub_tabs['uploadsystem_usercheck'] = [
 				"title" => $lang->uploadsystem_manage_usercheck,
-				"link" => "index.php?module=tools-uploadsystem&amp;action=usercheck",
+				"link" => "index.php?module=rpgstuff-uploadsystem&amp;action=usercheck",
 				"description" => $lang->uploadsystem_manage_usercheck_desc
 			];
 
@@ -599,7 +287,7 @@ function uploadsystem_admin_manage() {
 			}
 
 			// Übersichtsseite
-			$form = new Form("index.php?module=tools-uploadsystem", "post", "", 1);
+			$form = new Form("index.php?module=rpgstuff-uploadsystem", "post", "", 1);
 			$form_container = new FormContainer($lang->uploadsystem_manage_overview);
 			// Name
 			$form_container->output_row_header($lang->uploadsystem_manage_overview_name, array('style' => 'text-align: left; width: 25%;'));
@@ -623,7 +311,7 @@ function uploadsystem_admin_manage() {
 
 			while ($elements = $db->fetch_array($query_elements)) {
 
-                $form_container->output_cell('<strong><a href="index.php?module=tools-uploadsystem&amp;action=edit_element&amp;usid='.$elements['usid'].'">'.htmlspecialchars_uni($elements['name']).'</a></strong><br><small>'.htmlspecialchars_uni($elements['description']).'</small>');
+                $form_container->output_cell('<strong><a href="index.php?module=rpgstuff-uploadsystem&amp;action=edit_element&amp;usid='.$elements['usid'].'">'.htmlspecialchars_uni($elements['name']).'</a></strong><br><small>'.htmlspecialchars_uni($elements['description']).'</small>');
                 $form_container->output_cell(htmlspecialchars_uni($elements['path']));
                 $form_container->output_cell(htmlspecialchars_uni($elements['allowextensions']));
 
@@ -649,11 +337,11 @@ function uploadsystem_admin_manage() {
 				$popup = new PopupMenu("uploadsystem_".$elements['usid'], $lang->uploadsystem_manage_overview_options);	
                 $popup->add_item(
                     $lang->uploadsystem_manage_overview_options_edit,
-                    "index.php?module=tools-uploadsystem&amp;action=edit_element&amp;usid=".$elements['usid']
+                    "index.php?module=rpgstuff-uploadsystem&amp;action=edit_element&amp;usid=".$elements['usid']
                 );
                 $popup->add_item(
                     $lang->uploadsystem_manage_overview_options_delete,
-                    "index.php?module=tools-uploadsystem&amp;action=delete_element&amp;usid=".$elements['usid']."&amp;my_post_key={$mybb->post_code}", 
+                    "index.php?module=rpgstuff-uploadsystem&amp;action=delete_element&amp;usid=".$elements['usid']."&amp;my_post_key={$mybb->post_code}", 
 					"return AdminCP.deleteConfirmation(this, '".$lang->uploadsystem_manage_overview_delete_notice."')"
                 );
                 $form_container->output_cell($popup->fetch(), array("class" => "align_center"));
@@ -743,7 +431,7 @@ function uploadsystem_admin_manage() {
                     log_admin_action(htmlspecialchars_uni($mybb->input['name']));
     
                     flash_message($lang->uploadsystem_manage_add_upload_flash, 'success');
-                    admin_redirect("index.php?module=tools-uploadsystem");
+                    admin_redirect("index.php?module=rpgstuff-uploadsystem");
                 }
             }
     
@@ -778,25 +466,25 @@ function uploadsystem_admin_manage() {
             // Übersichtsseite Button
             $sub_tabs['uploadsystem'] = [
                 "title" => $lang->uploadsystem_manage_overview,
-                "link" => "index.php?module=tools-uploadsystem",
+                "link" => "index.php?module=rpgstuff-uploadsystem",
                 "description" => $lang->uploadsystem_manage_overview_desc
             ];
             // Upload Hinzufüge Button
             $sub_tabs['uploadsystem_upload_add'] = [
                 "title" => $lang->uploadsystem_manage_add_upload,
-                "link" => "index.php?module=tools-uploadsystem&amp;action=add_upload",
+                "link" => "index.php?module=rpgstuff-uploadsystem&amp;action=add_upload",
                 "description" => $lang->uploadsystem_manage_add_upload_desc
             ];
             // Userdatein verwalten Button
             $sub_tabs['uploadsystem_userfiles'] = [
                 "title" => $lang->uploadsystem_manage_userfiles,
-                "link" => "index.php?module=tools-uploadsystem&amp;action=userfiles",
+                "link" => "index.php?module=rpgstuff-uploadsystem&amp;action=userfiles",
                 "description" => $lang->uploadsystem_manage_userfiles_desc
             ];
 			// User in DB Button
 			$sub_tabs['uploadsystem_usercheck'] = [
 				"title" => $lang->uploadsystem_manage_usercheck,
-				"link" => "index.php?module=tools-uploadsystem&amp;action=usercheck",
+				"link" => "index.php?module=rpgstuff-uploadsystem&amp;action=usercheck",
 				"description" => $lang->uploadsystem_manage_usercheck_desc
 			];
     
@@ -811,7 +499,7 @@ function uploadsystem_admin_manage() {
             }
     
             // Build the form
-            $form = new Form("index.php?module=tools-uploadsystem&amp;action=add_upload", "post", "", 1);
+            $form = new Form("index.php?module=rpgstuff-uploadsystem&amp;action=add_upload", "post", "", 1);
             $form_container = new FormContainer($lang->uploadsystem_manage_add_upload);
     
             // Identifikator
@@ -1000,7 +688,7 @@ function uploadsystem_admin_manage() {
                     log_admin_action(htmlspecialchars_uni($mybb->input['name']));
     
                     flash_message($lang->uploadsystem_manage_edit_element_flash, 'success');
-                    admin_redirect("index.php?module=tools-uploadsystem");
+                    admin_redirect("index.php?module=rpgstuff-uploadsystem");
                 }
             }
     
@@ -1035,7 +723,7 @@ function uploadsystem_admin_manage() {
             // Übersichtsseite Button
             $sub_tabs['uploadsystem_element_edit'] = [
                 "title" => $lang->uploadsystem_manage_edit_element,
-                "link" => "index.php?module=tools-uploadsystem&amp;action=edit_element&usid=".$usid,
+                "link" => "index.php?module=rpgstuff-uploadsystem&amp;action=edit_element&usid=".$usid,
                 "description" => $lang->uploadsystem_manage_edit_element_desc
             ];
     
@@ -1047,7 +735,7 @@ function uploadsystem_admin_manage() {
             }
     
             // Build the form
-            $form = new Form("index.php?module=tools-uploadsystem&amp;action=edit_element", "post", "", 1);
+            $form = new Form("index.php?module=rpgstuff-uploadsystem&amp;action=edit_element", "post", "", 1);
             $form_container = new FormContainer($lang->sprintf($lang->uploadsystem_manage_edit_element_container, $element['name']));
             echo $form->generate_hidden_field('usid', $usid);
     
@@ -1150,12 +838,12 @@ function uploadsystem_admin_manage() {
 			// Error Handling
 			if (empty($usid)) {
 				flash_message($lang->uploadsystem_manage_error_invalid, 'error');
-				admin_redirect("index.php?module=tools-uploadsystem");
+				admin_redirect("index.php?module=rpgstuff-uploadsystem");
 			}
 
 			// Cancel button pressed?
 			if (isset($mybb->input['no']) && $mybb->input['no']) {
-				admin_redirect("index.php?module=tools-uploadsystem");
+				admin_redirect("index.php?module=rpgstuff-uploadsystem");
 			}
 
 			if ($mybb->request_method == "post") {
@@ -1176,10 +864,10 @@ function uploadsystem_admin_manage() {
 				log_admin_action(htmlspecialchars_uni($del_type['name']));
 
 				flash_message($lang->uploadsystem_manage_overview_delete_flash, 'success');
-				admin_redirect("index.php?module=tools-uploadsystem");
+				admin_redirect("index.php?module=rpgstuff-uploadsystem");
 			} else {
 				$page->output_confirm_action(
-					"index.php?module=tools-uploadsystem&amp;action=delete_element&amp;usid=".$usid,
+					"index.php?module=rpgstuff-uploadsystem&amp;action=delete_element&amp;usid=".$usid,
 					$lang->uploadsystem_manage_overview_delete_notice
 				);
 			}
@@ -1197,25 +885,25 @@ function uploadsystem_admin_manage() {
 			// Übersichtsseite Button
 			$sub_tabs['uploadsystem'] = [
 				"title" => $lang->uploadsystem_manage_overview,
-				"link" => "index.php?module=tools-uploadsystem",
+				"link" => "index.php?module=rpgstuff-uploadsystem",
 				"description" => $lang->uploadsystem_manage_overview_desc
 			];
 			// Upload Hinzufüge Button
 			$sub_tabs['uploadsystem_upload_add'] = [
 				"title" => $lang->uploadsystem_manage_add_upload,
-				"link" => "index.php?module=tools-uploadsystem&amp;action=add_upload",
+				"link" => "index.php?module=rpgstuff-uploadsystem&amp;action=add_upload",
 				"description" => $lang->uploadsystem_manage_add_upload_desc
 			];
 			// Userdatein verwalten Button
 			$sub_tabs['uploadsystem_userfiles'] = [
 				"title" => $lang->uploadsystem_manage_userfiles,
-				"link" => "index.php?module=tools-uploadsystem&amp;action=userfiles",
+				"link" => "index.php?module=rpgstuff-uploadsystem&amp;action=userfiles",
 				"description" => $lang->uploadsystem_manage_userfiles_desc
 			];
 			// User in DB Button
 			$sub_tabs['uploadsystem_usercheck'] = [
 				"title" => $lang->uploadsystem_manage_usercheck,
-				"link" => "index.php?module=tools-uploadsystem&amp;action=usercheck",
+				"link" => "index.php?module=rpgstuff-uploadsystem&amp;action=usercheck",
 				"description" => $lang->uploadsystem_manage_usercheck_desc
 			];
 
@@ -1227,7 +915,7 @@ function uploadsystem_admin_manage() {
 			}
 
 			// Übersichtsseite
-			$form = new Form("index.php?module=tools-uploadsystem&amp;action=userfiles", "post", "", 1);
+			$form = new Form("index.php?module=rpgstuff-uploadsystem&amp;action=userfiles", "post", "", 1);
 			$form_container = new FormContainer($lang->uploadsystem_manage_userfiles);
 			// Name
 			$form_container->output_row_header($lang->uploadsystem_manage_userfiles_overview, array('style' => 'text-align: left; width: 25%;'));
@@ -1274,10 +962,10 @@ function uploadsystem_admin_manage() {
 				$popup = new PopupMenu("uploadsystem_".$users['ufid'], $lang->uploadsystem_manage_userfiles_options);	
                 $popup->add_item(
                     $lang->uploadsystem_manage_userfiles_options_edit,
-                    "index.php?module=tools-uploadsystem&amp;action=edit_user&amp;ufid=".$users['ufid']
+                    "index.php?module=rpgstuff-uploadsystem&amp;action=edit_user&amp;ufid=".$users['ufid']
                 );$popup->add_item(
                     $lang->uploadsystem_manage_userfiles_options_delete,
-                    "index.php?module=tools-uploadsystem&amp;action=delete_user&amp;ufid=".$users['ufid']
+                    "index.php?module=rpgstuff-uploadsystem&amp;action=delete_user&amp;ufid=".$users['ufid']
                 );
                 $form_container->output_cell($popup->fetch(), array("class" => "align_center"));
                 $form_container->construct_row();
@@ -1293,7 +981,7 @@ function uploadsystem_admin_manage() {
             $form->end();
             // Multipage
             $search_url = htmlspecialchars_uni(
-                "index.php?module=tools-uploadsystem&action=userfiles".$mybb->get_input('perpage')
+                "index.php?module=rpgstuff-uploadsystem&action=userfiles".$mybb->get_input('perpage')
             );
             $multipage = multipage($users_count, $perpage, $pageview, $search_url);
             echo $multipage;
@@ -1318,13 +1006,13 @@ function uploadsystem_admin_manage() {
 			// Userdatein verwalten Button
 			$sub_tabs['uploadsystem_userfiles'] = [
 				"title" => $lang->uploadsystem_manage_userfiles,
-				"link" => "index.php?module=tools-uploadsystem&amp;action=userfiles",
+				"link" => "index.php?module=rpgstuff-uploadsystem&amp;action=userfiles",
 				"description" => $lang->uploadsystem_manage_userfiles_desc
 			];
             // User Dateien bearbeiten Button
             $sub_tabs['uploadsystem_user_edit'] = [
                 "title" => $lang->uploadsystem_manage_edit_user,
-                "link" => "index.php?module=tools-uploadsystem&amp;action=edit_user&ufid=".$ufid,
+                "link" => "index.php?module=rpgstuff-uploadsystem&amp;action=edit_user&ufid=".$ufid,
                 "description" => $lang->uploadsystem_manage_edit_user_desc
             ];
     
@@ -1361,7 +1049,7 @@ function uploadsystem_admin_manage() {
                     log_admin_action(htmlspecialchars_uni($name)." Datei gelöscht");
     
                     flash_message($lang->sprintf($lang->uploadsystem_manage_edit_user_flash_remove, $name), 'success');
-                    admin_redirect("index.php?module=tools-uploadsystem&amp;action=edit_user&amp;ufid=".$ufid);
+                    admin_redirect("index.php?module=rpgstuff-uploadsystem&amp;action=edit_user&amp;ufid=".$ufid);
 				}
 
                 // HOCHLADEN
@@ -1495,7 +1183,7 @@ function uploadsystem_admin_manage() {
                     
                         // Eintragen
                         $new_upload = array(
-                            $identification => $file_upload
+                            $identification => $file_upload.'?dateline='.time()
                         );
             
                         $db->update_query("uploadfiles", $new_upload, "ufid = '".$ufid."'");
@@ -1506,7 +1194,7 @@ function uploadsystem_admin_manage() {
                         log_admin_action(htmlspecialchars_uni($name)." Datei hochgeladen");
         
                         flash_message($lang->sprintf($lang->uploadsystem_manage_edit_user_flash_upload, $name), 'success');
-                        admin_redirect("index.php?module=tools-uploadsystem&amp;action=edit_user&amp;ufid=".$ufid);
+                        admin_redirect("index.php?module=rpgstuff-uploadsystem&amp;action=edit_user&amp;ufid=".$ufid);
                     } else {
                         $mybb->input['action'] = "edit_user";
 
@@ -1526,7 +1214,7 @@ function uploadsystem_admin_manage() {
             }
     
             // Build the form
-            $form = new Form("index.php?module=tools-uploadsystem&amp;action=edit_user", "post", "", 1);
+            $form = new Form("index.php?module=rpgstuff-uploadsystem&amp;action=edit_user", "post", "", 1);
             echo $form->generate_hidden_field('ufid', $ufid);
             $form_container = new FormContainer($lang->sprintf($lang->uploadsystem_manage_edit_user_container, $user['username']));
 
@@ -1593,7 +1281,7 @@ function uploadsystem_admin_manage() {
                 }
 
                 // Upload Buttons
-                $upload = '<form method="post" action="index.php?module=tools-uploadsystem&amp;action=edit_user&ufid='.$ufid.'" enctype="multipart/form-data">
+                $upload = '<form method="post" action="index.php?module=rpgstuff-uploadsystem&amp;action=edit_user&ufid='.$ufid.'" enctype="multipart/form-data">
                 <div class="uploadsystem_upload">
                     <div class="uploadsystem_upload_info">
                     <b>'.$lang->sprintf($lang->uploadsystem_manage_edit_user_element_upload, $all['name']).'</b></br>
@@ -1656,12 +1344,12 @@ function uploadsystem_admin_manage() {
 			// Error Handling
 			if (empty($ufid)) {
 				flash_message($lang->uploadsystem_manage_error_invalid, 'error');
-				admin_redirect("index.php?module=tools-uploadsystemm&amp;action=userfiles");
+				admin_redirect("index.php?module=rpgstuff-uploadsystemm&amp;action=userfiles");
 			}
 
 			// Cancel button pressed?
 			if (isset($mybb->input['no']) && $mybb->input['no']) {
-				admin_redirect("index.php?module=tools-uploadsystemm&amp;action=userfiles");
+				admin_redirect("index.php?module=rpgstuff-uploadsystemm&amp;action=userfiles");
 			}
 
 			if ($mybb->request_method == "post") {
@@ -1705,10 +1393,10 @@ function uploadsystem_admin_manage() {
 				log_admin_action();
 
 				flash_message($lang->sprintf($lang->uploadsystem_manage_userfiles_delete_flash, $user['username']), 'success');
-				admin_redirect("index.php?module=tools-uploadsystem&amp;action=userfiles");
+				admin_redirect("index.php?module=rpgstuff-uploadsystem&amp;action=userfiles");
 			} else {
 				$page->output_confirm_action(
-					"index.php?module=tools-uploadsystem&amp;action=delete_user&amp;ufid=".$ufid,
+					"index.php?module=rpgstuff-uploadsystem&amp;action=delete_user&amp;ufid=".$ufid,
 					$lang->uploadsystem_manage_userfiles_delete_notice
 				);
 			}
@@ -1726,25 +1414,25 @@ function uploadsystem_admin_manage() {
 			// Übersichtsseite Button
 			$sub_tabs['uploadsystem'] = [
 				"title" => $lang->uploadsystem_manage_overview,
-				"link" => "index.php?module=tools-uploadsystem",
+				"link" => "index.php?module=rpgstuff-uploadsystem",
 				"description" => $lang->uploadsystem_manage_overview_desc
 			];
 			// Upload Hinzufüge Button
 			$sub_tabs['uploadsystem_upload_add'] = [
 				"title" => $lang->uploadsystem_manage_add_upload,
-				"link" => "index.php?module=tools-uploadsystem&amp;action=add_upload",
+				"link" => "index.php?module=rpgstuff-uploadsystem&amp;action=add_upload",
 				"description" => $lang->uploadsystem_manage_add_upload_desc
 			];
 			// Userdatein verwalten Button
 			$sub_tabs['uploadsystem_userfiles'] = [
 				"title" => $lang->uploadsystem_manage_userfiles,
-				"link" => "index.php?module=tools-uploadsystem&amp;action=userfiles",
+				"link" => "index.php?module=rpgstuff-uploadsystem&amp;action=userfiles",
 				"description" => $lang->uploadsystem_manage_userfiles_desc
 			];
 			// User in DB Button
 			$sub_tabs['uploadsystem_usercheck'] = [
 				"title" => $lang->uploadsystem_manage_usercheck,
-				"link" => "index.php?module=tools-uploadsystem&amp;action=usercheck",
+				"link" => "index.php?module=rpgstuff-uploadsystem&amp;action=usercheck",
 				"description" => $lang->uploadsystem_manage_usercheck_desc
 			];
 
@@ -1785,7 +1473,7 @@ function uploadsystem_admin_manage() {
                 log_admin_action();
 
                 flash_message($lang->uploadsystem_manage_usercheck_flash, 'success');
-                admin_redirect("index.php?module=tools-uploadsystem");
+                admin_redirect("index.php?module=rpgstuff-uploadsystem");
 			}
 
 			// Überprüfen, ob Update nötig ist
@@ -1795,7 +1483,7 @@ function uploadsystem_admin_manage() {
             // Zählen
             $count_users = $db->num_rows($allUsers);
 
-			$form = new Form("index.php?module=tools-uploadsystem&amp;action=usercheck", "post");
+			$form = new Form("index.php?module=rpgstuff-uploadsystem&amp;action=usercheck", "post");
 			$form_container = new FormContainer($lang->uploadsystem_manage_usercheck);
 			// Name
 			$form_container->output_row_header($lang->uploadsystem_manage_usercheck_missing);
@@ -1822,6 +1510,136 @@ function uploadsystem_admin_manage() {
 
     }
 
+}
+
+// Stylesheet zum Master Style hinzufügen
+function uploadsystem_admin_update_stylesheet(&$table) {
+
+    global $db, $mybb, $lang;
+	
+    $lang->load('rpgstuff_stylesheet_updates');
+
+    require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+
+    // HINZUFÜGEN
+    if ($mybb->input['action'] == 'add_master' AND $mybb->get_input('plugin') == "uploadsystem") {
+
+        $css = uploadsystem_stylesheet();
+        
+        $sid = $db->insert_query("themestylesheets", $css);
+        $db->update_query("themestylesheets", array("cachefile" => "uploadsystem.css"), "sid = '".$sid."'", 1);
+    
+        $tids = $db->simple_select("themes", "tid");
+        while($theme = $db->fetch_array($tids)) {
+            update_theme_stylesheet_list($theme['tid']);
+        } 
+
+        flash_message($lang->stylesheets_flash, "success");
+        admin_redirect("index.php?module=rpgstuff-stylesheet_updates");
+    }
+
+    // Zelle mit dem Namen des Themes
+    $table->construct_cell("<b>".htmlspecialchars_uni("Upload-System")."</b>", array('width' => '70%'));
+
+    // Ob im Master Style vorhanden
+    $master_check = $db->fetch_field($db->query("SELECT tid FROM ".TABLE_PREFIX."themestylesheets 
+    WHERE name = 'uploadsystem.css' 
+    AND tid = 1
+    "), "tid");
+    
+    if (!empty($master_check)) {
+        $masterstyle = true;
+    } else {
+        $masterstyle = false;
+    }
+
+    if (!empty($masterstyle)) {
+        $table->construct_cell($lang->stylesheets_masterstyle, array('class' => 'align_center'));
+    } else {
+        $table->construct_cell("<a href=\"index.php?module=rpgstuff-stylesheet_updates&action=add_master&plugin=uploadsystem\">".$lang->stylesheets_add."</a>", array('class' => 'align_center'));
+    }
+    
+    $table->construct_row();
+}
+
+// Plugin Update
+function uploadsystem_admin_update_plugin(&$table) {
+
+    global $db, $mybb, $lang;
+	
+    $lang->load('rpgstuff_plugin_updates');
+
+    // UPDATE
+    if ($mybb->input['action'] == 'add_update' AND $mybb->get_input('plugin') == "uploadsystem") {
+
+        // Einstellungen überprüfen => Type = update
+        uploadsystem_settings('update');
+        rebuild_settings();
+
+        // Templates 
+        uploadsystem_templates('update');
+
+        // Stylesheet
+        $update_data = uploadsystem_stylesheet_update();
+        $update_stylesheet = $update_data['stylesheet'];
+        $update_string = $update_data['update_string'];
+        if (!empty($update_string)) {
+
+            // Ob im Master Style die Überprüfung vorhanden ist
+            $masterstylesheet = $db->fetch_field($db->query("SELECT stylesheet FROM ".TABLE_PREFIX."themestylesheets WHERE tid = 1 AND name = 'uploadsystem.css'"), "stylesheet");
+            $pos = strpos($masterstylesheet, $update_string);
+            if ($pos === false) { // nicht vorhanden 
+            
+                $theme_query = $db->simple_select('themes', 'tid, name');
+                while ($theme = $db->fetch_array($theme_query)) {
+        
+                    $stylesheet_query = $db->simple_select("themestylesheets", "*", "name='".$db->escape_string('uploadsystem.css')."' AND tid = ".$theme['tid']);
+                    $stylesheet = $db->fetch_array($stylesheet_query);
+        
+                    if ($stylesheet) {
+
+                        require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+        
+                        $sid = $stylesheet['sid'];
+            
+                        $updated_stylesheet = array(
+                            "cachefile" => $db->escape_string($stylesheet['name']),
+                            "stylesheet" => $db->escape_string($stylesheet['stylesheet']."\n\n".$update_stylesheet),
+                            "lastmodified" => TIME_NOW
+                        );
+            
+                        $db->update_query("themestylesheets", $updated_stylesheet, "sid='".$sid."'");
+            
+                        if(!cache_stylesheet($theme['tid'], $stylesheet['name'], $updated_stylesheet['stylesheet'])) {
+                            $db->update_query("themestylesheets", array('cachefile' => "css.php?stylesheet=".$sid), "sid='".$sid."'", 1);
+                        }
+            
+                        update_theme_stylesheet_list($theme['tid']);
+                    }
+                }
+            } 
+        }
+
+        // Datenbanktabellen & Felder
+        uploadsystem_database();
+
+        flash_message($lang->plugins_flash, "success");
+        admin_redirect("index.php?module=rpgstuff-plugin_updates");
+    }
+
+    // Zelle mit dem Namen des Themes
+    $table->construct_cell("<b>".htmlspecialchars_uni("Upload-System")."</b>", array('width' => '70%'));
+
+    // Überprüfen, ob Update erledigt
+    $update_check = uploadsystem_is_updated();
+
+    if (!empty($update_check)) {
+        $table->construct_cell($lang->plugins_actual, array('class' => 'align_center'));
+    } else {
+        $table->construct_cell("<a href=\"index.php?module=rpgstuff-plugin_updates&action=add_update&plugin=uploadsystem\">".$lang->plugins_update."</a>", array('class' => 'align_center'));
+    }
+    
+    $table->construct_row();
 }
 
 // NEUER USER REGISTIERT SICH => ZEILE IN DB ERSTELLEN
@@ -2047,7 +1865,7 @@ function uploadsystem_usercp() {
         }
         
         // Überprüfung der Dateiendung    
-        $extensions_array = explode (", ", $allowextensions);
+        $extensions_array = explode (", ", strtolower($allowextensions).", ".strtoupper($allowextensions));
         if(!in_array($imageFileType, $extensions_array) AND !empty($_FILES[$input_name]['name'])) {
             $uploadsystem_error[] = $lang->sprintf($lang->uploadsystem_error_upload_file, $imageFileType);
         }
@@ -2064,7 +1882,7 @@ function uploadsystem_usercp() {
         
             // Eintragen
             $new_upload = array(
-                $identification => $file_upload
+                $identification => $file_upload.'?dateline='.time()
             );
 
             $db->update_query("uploadfiles", $new_upload, "ufid = '".$thisuser."'");
@@ -2347,7 +2165,7 @@ function uploadsystem_uploadsig(){
 
     // EINSTELLUNGEN
     $allowed_extensions = $mybb->settings['uploadsystem_signatur_extensions'];
-    $extensions_string = str_replace(", ", ",", $allowed_extensions);
+    $extensions_string = str_replace(", ", ",", strtolower($allowed_extensions).",".strtoupper($allowed_extensions));
     $extensions_values = explode (",", $extensions_string);
     $signatur_max = $mybb->settings['uploadsystem_signatur_max'];
     $signatur_size = $mybb->settings['uploadsystem_signatur_size'];
@@ -2437,7 +2255,7 @@ function uploadsystem_uploadsig(){
         
             // Eintragen
             $new_upload = array(
-                "signatur" => $file_upload
+                "signatur" => $file_upload.'?dateline='.time()
             );
 
             $db->update_query("uploadfiles", $new_upload, "ufid = '".$thisuser."'");
@@ -2505,4 +2323,440 @@ function uploadsystem_editsig(){
 
     eval("\$upload_signatur .= \"".$templates->get("uploadsystem_usercp_signatur")."\";");	
 
+}
+
+// DATENBANKTABELLEN
+function uploadsystem_database() {
+
+    global $db;
+    
+    // DATENBANKEN ERSTELLEN
+    // Upload Möglichkeiten
+    if (!$db->table_exists("uploadsystem")) {
+        $db->query("CREATE TABLE ".TABLE_PREFIX."uploadsystem(
+            `usid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+            `disporder` int(10) default '0',
+            `identification` VARCHAR(250) COLLATE utf8_general_ci  NOT NULL,
+            `name` VARCHAR(250) COLLATE utf8_general_ci NOT NULL,
+            `description` VARCHAR(500) COLLATE utf8_general_ci NOT NULL,
+            `path` text COLLATE utf8_general_ci NOT NULL,
+            `allowextensions` VARCHAR(100) COLLATE utf8_general_ci NOT NULL,
+            `mindims` VARCHAR(100) COLLATE utf8_general_ci NOT NULL,
+            `maxdims` VARCHAR(100) COLLATE utf8_general_ci NOT NULL default '',
+            `square` int(1) unsigned NOT NULL default '0',
+            `bytesize` VARCHAR(100) COLLATE utf8_general_ci NOT NULL default '5120',
+            PRIMARY KEY(`usid`),
+            KEY `usid` (`usid`)
+            )
+            ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1"
+        );
+    }
+
+    // einzelne Datein
+    if (!$db->table_exists("uploadfiles")) {
+        $db->query("CREATE TABLE ".TABLE_PREFIX."uploadfiles(
+            `ufid` int(10) unsigned NOT NULL default '0',
+            `signatur` TEXT COLLATE utf8_general_ci NOT NULL,
+            PRIMARY KEY(`ufid`),
+            KEY `ufid` (`ufid`)
+            )
+            ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1"
+        );
+    }
+}
+
+// VERZEICHNISSE
+function uploadsystem_directories() {
+
+    // HAUPTVERZEICHNIS ERSTELLEN
+    if (!is_dir(MYBB_ROOT.'uploads/uploadsystem')) {
+        mkdir(MYBB_ROOT.'uploads/uploadsystem', 0777, true);
+    }
+
+    // SIGNATUR VERZEICHNIS ERSTELLEN
+    if (!is_dir(MYBB_ROOT.'uploads/uploadsystem/signatur') AND is_dir(MYBB_ROOT.'uploads/uploadsystem')) {
+        mkdir(MYBB_ROOT.'uploads/uploadsystem/signatur', 0777, true);
+    }
+}
+
+// EINSTELLUNGEN
+function uploadsystem_settings($type = 'install') {
+
+    global $db; 
+
+    $setting_array = array(
+		'uploadsystem_allowed_extensions' => array(
+			'title' => 'Erlaubte Dateitypen',
+			'description' => 'Welche Dateitypen dürfen allgemein über das Upload-System hochgeladen werden?',
+			'optionscode' => 'text',
+			'value' => 'png, jpg, jpeg, gif, bmp', // Default
+			'disporder' => 1
+		),
+		'uploadsystem_signatur' => array(
+			'title' => 'Signaturen hochladen',
+			'description' => 'Dürfen User auch ihre Signaturen über das Upload-System hochladen?',
+			'optionscode' => 'yesno',
+			'value' => '0', // Default
+			'disporder' => 2
+		),
+        'uploadsystem_signatur_max' => array(
+            'title' => 'maximale Signaturgröße',
+            'description' => "Wie groß dürfen Signaturen maximal sein? Breite und Höhe getrennt durch x oder |. Wenn das Feld leer bleibt, wird die Größe nicht beschränkt.",
+            'optionscode' => 'text',
+            'value' => '500x250', // Default
+            'disporder' => 3
+        ),
+        'uploadsystem_signatur_size' => array(
+            'title' => 'Maximale Datei-Größe',
+            'description' => 'Die maximale Dateigröße (in Kilobyte) für hochgeladene Signaturen beträgt (0 = Keine Beschränkung)? Der Defaultwert beträgt 5 MB.<br>Gewünschte MBx1024 = KB Wert. 5x1024 = 5120',
+            'optionscode' => 'text',
+            'value' => '5120', // Default
+            'disporder' => 4
+        ),
+        'uploadsystem_signatur_extensions' => array(
+            'title' => 'Erlaubte Dateitypen für Signaturen',
+            'description' => 'Welche Dateitypen dürfen für die Signaturen hochgeladen werden?',
+            'optionscode' => 'text',
+            'value' => 'png, jpg, jpeg', // Default
+            'disporder' => 5
+        ),
+    );
+
+    $gid = $db->fetch_field($db->write_query("SELECT gid FROM ".TABLE_PREFIX."settinggroups WHERE name = 'uploadsystem' LIMIT 1;"), "gid");
+
+    if ($type == 'install') {
+        foreach ($setting_array as $name => $setting) {
+          $setting['name'] = $name;
+          $setting['gid'] = $gid;
+          $db->insert_query('settings', $setting);
+        }  
+    }
+
+    if ($type == 'update') {
+
+        // Einzeln durchgehen 
+        foreach ($setting_array as $name => $setting) {
+            $setting['name'] = $name;
+            $check = $db->write_query("SELECT name FROM ".TABLE_PREFIX."settings WHERE name = '".$name."'"); // Überprüfen, ob sie vorhanden ist
+            $check = $db->num_rows($check);
+            $setting['gid'] = $gid;
+            if ($check == 0) { // nicht vorhanden, hinzufügen
+              $db->insert_query('settings', $setting);
+            }
+        }
+
+        // Weiter Einstellungs Updates
+           
+    }
+
+    rebuild_settings();
+}
+
+// TEMPLATES
+function uploadsystem_templates($mode = '') {
+
+    global $db;
+
+    $templates[] = array(
+        'title'		=> 'uploadsystem_usercp',
+        'template'	=> $db->escape_string('<html>
+        <head>
+            <title>{$lang->user_cp} - {$lang->uploadsystem_usercp}</title>
+            {$headerinclude}
+        </head>
+        <body>
+            {$header}
+            <table width="100%" border="0" align="center">
+                <tr>
+                    {$usercpnav}
+                    <td valign="top">
+                        <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+                            <tr>
+                                <td class="thead">
+                                    <strong>{$lang->uploadsystem_usercp}</strong>
+                                </td>
+                            </tr>
+                            {$uploadsystem_error}
+                            <tr>
+                                <td>
+                                    <div class="uploadsystem-desc">{$lang->uploadsystem_usercp_desc}</div>
+                                    {$upload_element}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            {$footer}
+        </body>
+     </html>'),
+        'sid'		=> '-2',
+        'dateline'	=> TIME_NOW
+    );
+
+    $templates[] = array(
+        'title'		=> 'uploadsystem_usercp_element',
+        'template'	=> $db->escape_string('<div class="uploadsystem_element">
+        <div class="uploadsystem_element_headline"><strong>{$headline}</strong></div>
+        <div class="uploadsystem_element_main">
+            <div class="uploadsystem_element_info">
+                {$description}</br></br>
+        {$dims} {$square}<br>
+        {$extensions}<br>
+        {$size}<br><br>
+        {$element_notice}
+        </div>
+        <div>
+        <div class="uploadsystem_element_preview" style="background:url(\'$file_url\');background-size: cover;width:{$minwidth}px;height:{$minheight}px;">
+            {$graphic_size}
+        </div>
+        </div>
+        </div>
+        {$upload}
+        </div>'),
+        'sid'		=> '-2',
+        'dateline'	=> TIME_NOW
+    );
+
+    $templates[] = array(
+        'title'		=> 'uploadsystem_usercp_element_remove',
+        'template'	=> $db->escape_string('<input type="submit" value="{$remove_button}" name="remove_upload" class="button">'),
+        'sid'		=> '-2',
+        'dateline'	=> TIME_NOW
+    );
+
+    $templates[] = array(
+        'title'		=> 'uploadsystem_usercp_element_upload',
+        'template'	=> $db->escape_string('<form method="post" action="usercp.php?action=uploadsystem" enctype="multipart/form-data">
+        <div class="uploadsystem_upload">
+            <div class="uploadsystem_upload_info">
+                <b>{$headline_upload}</b></br>
+            {$subline_upload}
+        </div>
+        <div class="uploadsystem_upload_input">
+            <input type="file" name="pic_{$identification}">
+        </div>
+        <div class="uploadsystem_upload_button">                            
+            <input type="hidden" name="usID" id="usID" value="{$usid}" />
+            <input type="hidden" name="action" value="do_upload">         
+            <input type="submit" value="{$lang->uploadsystem_usercp_element_button}" name="new_upload" class="button">
+            {$remove}
+        </div>
+        </div>
+        </form>'),
+        'sid'		=> '-2',
+        'dateline'	=> TIME_NOW
+    );
+
+    $templates[] = array(
+        'title'		=> 'uploadsystem_usercp_nav',
+        'template'	=> $db->escape_string('<tr>
+        <td class="trow1 smalltext">
+            <a href="usercp.php?action=uploadsystem" class="usercp_nav_item usercp_nav_subscriptions">{$lang->uploadsystem_usercp_nav}</a>
+        </td>
+        </tr>'),
+        'sid'		=> '-2',
+        'dateline'	=> TIME_NOW
+    );
+
+    $templates[] = array(
+        'title'		=> 'uploadsystem_usercp_signatur',
+        'template'	=> $db->escape_string('<tr>
+        <td class="trow2">
+            <b>{$lang->uploadsystem_usercp_signatur_headline}</b>
+        </td>
+        <td class="trow2">
+            <div class="uploadsystem_signatur">
+                <div class="uploadsystem_signatur_info">
+                    <b>{$lang->uploadsystem_usercp_signatur_link_headline}</b></br>
+                <span class="smalltext">{$file_url}</span>
+            </div>
+            <div class="uploadsystem_signatur_input">
+                <input type="file" name="signaturlink"><br>
+                <span class="smalltext">{$element_notice}</span>
+            </div>
+            <div class="uploadsystem_signatur_button"> 
+                <input type="hidden" name="action" value="do_editsig" />                    
+                <input type="submit" class="button" name="new_signatur" value="{$uploadsystem_usercp_signatur_button}" />
+                {$remove}
+            </div>
+            </div>
+            </td>
+            </tr>'),
+        'sid'		=> '-2',
+        'dateline'	=> TIME_NOW
+    );
+   
+    $templates[] = array(
+        'title'		=> 'uploadsystem_usercp_signatur_remove',
+        'template'	=> $db->escape_string('<input type="submit" value="{$lang->uploadsystem_usercp_signatur_button_remove}" name="remove_signatur" class="button">'),
+        'sid'		=> '-2',
+        'dateline'	=> TIME_NOW
+    );
+    
+
+    if ($mode == "update") {
+
+        foreach ($templates as $template) {
+            $query = $db->simple_select("templates", "tid, template", "title = '".$template['title']."' AND sid = '-2'");
+            $existing_template = $db->fetch_array($query);
+
+            if($existing_template) {
+                if ($existing_template['template'] !== $template['template']) {
+                    $db->update_query("templates", array(
+                        'template' => $template['template'],
+                        'dateline' => TIME_NOW
+                    ), "tid = '".$existing_template['tid']."'");
+                }
+            }
+            else {
+                $db->insert_query("templates", $template);
+            }
+        }
+	
+    } else {
+        foreach ($templates as $template) {
+            $check = $db->num_rows($db->simple_select("templates", "title", "title = '".$template['title']."'"));
+            if ($check == 0) {
+                $db->insert_query("templates", $template);
+            }
+        }
+    }
+}
+
+// STYLESHEET MASTER
+function uploadsystem_stylesheet() {
+
+    global $db;
+    
+    $css = array(
+        'name' => 'uploadsystem.css',
+        'tid' => 1,
+        'attachedto' => '',
+        "stylesheet" => '.uploadsystem-desc {
+            text-align: justify;
+            line-height: 180%;
+            padding: 20px 40px;
+        }
+        
+        .uploadsystem_element {
+            margin-bottom: 10px;
+        }
+        
+        .uploadsystem_element:last-child {
+            margin-bottom: 0;
+        }
+        
+        .uploadsystem_element_headline {
+            background: #0f0f0f url(../../../images/tcat.png) repeat-x;
+            color: #fff;
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #000;
+            padding: 6px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .uploadsystem_element_main {
+            display: flex;
+            gap: 10px;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+        
+        .uploadsystem_element_info {
+            text-align: justify;
+        }
+        
+        .uploadsystem_element_preview {
+            background-size: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #6f6d6d;
+            font-weight: bold;
+        }
+        
+        .uploadsystem_upload {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 0 10px;
+            align-items: center;
+        }
+        
+        .uploadsystem_upload_info {
+            width: 45%;
+            border-right: 1px solid;
+            border-color: #ddd;
+        }
+        
+        .uploadsystem_upload_input {
+            width: 53%;
+        }
+        
+        .uploadsystem_upload_button {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .uploadsystem_signatur {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 0 10px;
+            align-items: center;
+        }
+        
+        .uploadsystem_signatur_info {
+            width: 54%;
+            border-right: 1px solid;
+            border-color: #ddd;
+        }
+        
+        .uploadsystem_signatur_input {
+            width: 44%;
+            padding-left: 10px;
+        }
+        
+        .uploadsystem_signatur_button {
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+        }',
+        'cachefile' => $db->escape_string(str_replace('/', '', 'uploadsystem.css')),
+        'lastmodified' => time()
+    );
+
+    return $css;
+}
+
+// STYLESHEET UPDATE
+function uploadsystem_stylesheet_update() {
+
+    // Update-Stylesheet
+    // wird an bestehende Stylesheets immer ganz am ende hinzugefügt
+    $update = '';
+
+    // Definiere den  Überprüfung-String (muss spezifisch für die Überprüfung sein)
+    $update_string = '';
+
+    return array(
+        'stylesheet' => $update,
+        'update_string' => $update_string
+    );
+}
+
+// UPDATE CHECK
+function uploadsystem_is_updated(){
+
+    global $db, $mybb;
+
+    if ($db->table_exists("uploadfiles")) {
+        return true;
+    }
+    return false;
 }
