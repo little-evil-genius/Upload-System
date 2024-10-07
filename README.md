@@ -46,17 +46,17 @@ Es wird automatisch zu jedem bestehenden und neuem Design hinzugefügt. Man soll
 Es wurde ein neuer Ordner mit dem Namen uploadsystem im Ordner uploads erstellt. In diesem Ordner liegt schon der Ordner 'signatur' und bei jedem Upload-Element wird ein Ordner mit dem Identifikator erstellt. Die hochgeladenen Dateien der User werden auch in den entsprechenden Ordner gespeichert.
 
 # Benutzergruppen-Berechtigungen setzen
-Damit alle Admin-Accounts Zugriff auf die Verwaltung vom Uploadsystem haben im ACP, müssen unter dem Reiter Benutzer & Gruppen » Administrator-Berechtigungen » Benutzergruppen-Berechtigungen die Berechtigungen einmal angepasst werden. Die Berechtigungen für das Uploadsystem befinden sich im Tab 'Tools & Verwaltung'.
+Damit alle Admin-Accounts Zugriff auf die Verwaltung vom Uploadsystem haben im ACP, müssen unter dem Reiter Benutzer & Gruppen » Administrator-Berechtigungen » Benutzergruppen-Berechtigungen die Berechtigungen einmal angepasst werden. Die Berechtigungen für das Uploadsystem befinden sich im Tab 'RPG Erweiterungen'.
 
 # Datenbank aktualsieren
-Bevor das Plugin in Betrieb genommen werden kann muss einmal die Datenbank-Tabelle PRÄFIX_uploadfiles aktualisiert werden. Damit alle bisherigen Accounts auch in der Tabelle stehen und diese Accounts Dateien hochladen und speichern können. Dafür muss im ACP der Reiter Datenbank aktualisieren (index.php?module=tools-uploadsystem&action=usercheck) im Uploadsystem aufgerufen werden. Dort muss man nur auf den Button drücken und das einfügen der Accounts erfolgt automatisch. Wenn ein neuer Account registriert wird, werden die entsprechenden Felder direkt für diesen neuen Account angelegt. So muss man diese Aktualisierung nur einmal am Anfang ausführen!
+Bevor das Plugin in Betrieb genommen werden kann muss einmal die Datenbank-Tabelle PRÄFIX_uploadfiles aktualisiert werden. Damit alle bisherigen Accounts auch in der Tabelle stehen und diese Accounts Dateien hochladen und speichern können. Dafür muss im ACP der Reiter Datenbank aktualisieren (index.php?module=rpgstuff-uploadsystem&action=usercheck) im Uploadsystem aufgerufen werden. Dort muss man nur auf den Button drücken und das einfügen der Accounts erfolgt automatisch. Wenn ein neuer Account registriert wird, werden die entsprechenden Felder direkt für diesen neuen Account angelegt. So muss man diese Aktualisierung nur einmal am Anfang ausführen!
 
 # Account löschen
 Damit die Löschung der Daten in der Datenbank und von den Dateien vom Webspace richtig funktioniert, müssen Accounts über das Popup "Optionen" im ACP gelöscht werden. Im ACP werden alle Accounts unter dem Reiter Benutzer & Gruppen > Benutzer aufgelistet. Und bei jedem Account befindet sich rechts ein Optionen-Button. Wenn man diesen drückt, erscheint eine Auswahl von verschiedenen Möglichkeiten. Über diese Variante müssen Accounts gelöscht werden, damit das automatische Löschen der Upload Informationen funktioniert.
 
 # Links
 <b>ACP</b><br>
-index.php?module=tools-uploadsystem<br>
+index.php?module=rpgstuff-uploadsystem<br>
 <br>
 <b>User-CP</b><br>
 usercp.php?action=uploadsystem<br>
