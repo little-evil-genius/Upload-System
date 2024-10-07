@@ -3,6 +3,9 @@ Dieses Plugin fügt eurem Forum ein internes Uploadsystem hinzu. Das Hochladen v
 Administratoren können im ACP verschiedene Upload-Elemente erstellen. Wenn ein neues Element erstellt wird, können verschiedene Kriterien festgelegt werden. Wie die zulässige Minimal- und Maximalgröße, die Dateiformate, die Dateigröße in Kilobyte. Auch die Dateien von den Usern verwalten, bearbeiten und gegebenenfalls löschen. User haben die Möglichkeit die einzelnen Dateien im User-CP auf einer extra Seite zu verwalten.<br>
 Außerdem kann das Team auch einstellen, ob User auch eine Signatur-Datei hochladen können und dann im bekannten Signatur-Feld einbinden können.
 
+# Vorrausetzung
+- Das ACP Modul <a href="https://github.com/little-evil-genius/rpgstuff_modul" target="_blank">RPG Stuff</a> <b>muss</b> vorhanden sein.
+
 # Datenbank-Änderungen
 hinzugefügte Tabelle:
 hinzugefügte Tabelle:
