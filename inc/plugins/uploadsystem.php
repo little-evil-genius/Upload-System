@@ -25,7 +25,7 @@ $plugins->add_hook("build_friendly_wol_location_end", "uploadsystem_online_locat
 $plugins->add_hook("postbit", "uploadsystem_postbit", 0);
 $plugins->add_hook("memberlist_user", "uploadsystem_memberlist", 0);
 $plugins->add_hook("member_profile_end", "uploadsystem_memberprofile", 0);
-$plugins->add_hook("global_start", "uploadsystem_global");
+$plugins->add_hook("global_intermediate", "uploadsystem_global");
 $plugins->add_hook("usercp_do_editsig_start", "uploadsystem_uploadsig");
 $plugins->add_hook("usercp_editsig_end", "uploadsystem_editsig"); 
  
@@ -37,7 +37,7 @@ function uploadsystem_info(){
 		"website"	=> "https://github.com/little-evil-genius",
 		"author"	=> "little.evil.genius",
 		"authorsite"	=> "https://storming-gates.de/member.php?action=profile&uid=1712",
-		"version"	=> "1.0.2",
+		"version"	=> "1.1",
 		"compatibility" => "18*"
 	);
 }
@@ -2097,7 +2097,7 @@ function uploadsystem_memberprofile(){
 // Global
 function uploadsystem_global(){
 
-    global $db, $mybb, $upload_data;
+    global $db, $mybb, $upload_data, $theme;
   
     $upload_data = array();
 
@@ -2113,10 +2113,36 @@ function uploadsystem_global(){
         // Pfad
         $path = $db->fetch_field($db->simple_select("uploadsystem", "path", "identification = '".$identification."'"), "path");
 
+        if ($mybb->user['uid'] == '0' || $fieldvalue == '') {
+            $allowextensions = $db->fetch_field($db->simple_select("uploadsystem", "allowextensions", "identification = '".$identification."'"), "allowextensions");
+            $allowed_formats = explode (", ", strtolower($allowextensions).", ".strtoupper($allowextensions));  
+
+            $themesdir = str_replace($mybb->settings['bburl']."/", "", $theme['imgdir']);
+
+            $found_format = '';
+            foreach ($allowed_formats as $format) {
+                $file_path = $themesdir."/default_".$identification.".".$format;
+                if (file_exists($file_path)) {
+                    $found_format = $format;
+                    break;
+                }
+            }
+
+            // Dateiname + Pfad {$upload_data['identification']}
+            $arraylabel = $identification;
+        
+            if (!empty($found_format)) {
+                $upload_data[$arraylabel] = $mybb->settings['bburl']."/".$themesdir."/default_".$identification.".".$found_format."?dateline=".time();
+            } else {
+                $upload_data[$arraylabel] = $mybb->settings['bburl']."/images/default_avatar.png?dateline=".time();
+            }
+        } else {
+            // Dateiname + Pfad {$upload_data['identification']}
+            $upload_data[$identification] = $path.$fieldvalue;
+        }
+
         $arraylabel = "files_{$identification}";
         $upload_data[$arraylabel] = $fieldvalue;
-
-        $upload_data[$identification] = $path.$fieldvalue;
     }
 
 }
@@ -2124,7 +2150,7 @@ function uploadsystem_global(){
 // Variabel Bau Funktion - danke Katja <3
 function uploadsystem_build_view($uid){
 
-  global $db;
+  global $db, $mybb, $theme;
 
   // Rückgabe als Array, also einzelne Variablen die sich ansprechen lassen
 
@@ -2145,9 +2171,34 @@ function uploadsystem_build_view($uid){
         // Pfad
         $path = $db->fetch_field($db->simple_select("uploadsystem", "path", "identification = '".$identification."'"), "path");
 
-        // Dateiname + Pfad {$variable['identification']}
-        $arraylabel = $identification;
-        $array[$arraylabel] = $path.$fieldvalue;
+        if ($mybb->user['uid'] == '0' || $fieldvalue == '') {
+            $allowextensions = $db->fetch_field($db->simple_select("uploadsystem", "allowextensions", "identification = '".$identification."'"), "allowextensions");
+            $allowed_formats = explode (", ", strtolower($allowextensions).", ".strtoupper($allowextensions));  
+
+            $themesdir = str_replace($mybb->settings['bburl']."/", "", $theme['imgdir']);  
+
+            $found_format = '';
+            foreach ($allowed_formats as $format) {
+                $file_path = $themesdir."/default_".$identification.".".$format;
+                if (file_exists($file_path)) {
+                    $found_format = $format;
+                    break;
+                }
+            }
+
+            // Dateiname + Pfad {$variable['identification']}
+            $arraylabel = $identification;
+        
+            if (!empty($found_format)) {
+                $array[$arraylabel] = $mybb->settings['bburl']."/".$themesdir."/default_".$identification.".".$found_format."?dateline=".time();
+            } else {
+                $array[$arraylabel] = $mybb->settings['bburl']."/images/default_avatar.png?dateline=".time();
+            }
+        } else {
+            // Dateiname + Pfad {$variable['identification']}
+            $arraylabel = $identification;
+            $array[$arraylabel] = $path.$fieldvalue;
+        }
 
         // nur Datei  {$variable['label_vorname']}
         $arraylabel = "files_{$identification}";
