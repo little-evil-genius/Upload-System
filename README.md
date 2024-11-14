@@ -89,29 +89,6 @@ Dateiname + Pfad <br>
 Nur Dateiname (relevant für if Abfragen) <br>
 {$upload_data['files_identification']}
 
-# Beispiel If-Abfrage
-Viele Boards verstecken ihre Grafiken vor Gästen oder möchten, dass eine Default Grafik angezeigt wird, wenn es keine entsprechende Grafik gibt. Genau wie bei den Profilfeldern kann man das auch für die hochgeladenen Dateien machen. Dies ist jetzt ein Beispiel für den Postbit. <br>
-```
-if ($post['files_identification'] != "") {
-   $post['eigener_Name'] = $post['identification'];
-} else {
-   $post['eigener_Name'] = $theme['imgdir']."/eigenerName_default.png";
-}
-```
-<br>
-In das Template postbit und postbit_classic würde dann die Variable {$post['eigener_Name']} an die gewünschte Stelle kommen. Auf den Webspace würde dann in den oder die entsprechende/n Grafiken-Ordner für das Design eine Datei mit dem Namen eigenerName_default.png kommen. <br><br>
-<b>HINWEIS</b><br>
-Solche If-Abfragen, sollten sie nicht über das Plugin 'php in tpl' erfolgen, sollten <b>NACH</b> folgenden Stellen in der PHP eingefügt werden:<br>
-<b>Postbit (& PN & Postbit Vorschau):</b><br>
-<b>Datei</b> inc/functions_post.php<br>
-$post = $plugins->run_hooks("postbit", $post);<br><br>
-<b>Mitgliederliste:</b><br>
-<b>Datei:</b> memberlist.php<br>
-$user = $plugins->run_hooks("memberlist_user", $user);<br><br>
-<b>Profil:</b><br>
-<b>Datei:</b> member.php<br>
-$plugins->run_hooks("member_profile_end");
-
 # Demo
 # ACP
 <img src="https://stormborn.at/plugins/uploadsystem_acp_overview.png">
