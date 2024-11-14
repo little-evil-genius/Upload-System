@@ -2134,7 +2134,7 @@ function uploadsystem_global(){
             if (!empty($found_format)) {
                 $upload_data[$arraylabel] = $mybb->settings['bburl']."/".$themesdir."/default_".$identification.".".$found_format."?dateline=".time();
             } else {
-                $upload_data[$arraylabel] = $mybb->settings['bburl']."/images/default_avatar.png?dateline=".time();
+                $upload_data[$arraylabel] = "";
             }
         } else {
             // Dateiname + Pfad {$upload_data['identification']}
@@ -2192,7 +2192,7 @@ function uploadsystem_build_view($uid){
             if (!empty($found_format)) {
                 $array[$arraylabel] = $mybb->settings['bburl']."/".$themesdir."/default_".$identification.".".$found_format."?dateline=".time();
             } else {
-                $array[$arraylabel] = $mybb->settings['bburl']."/images/default_avatar.png?dateline=".time();
+                $array[$arraylabel] = "";
             }
         } else {
             // Dateiname + Pfad {$variable['identification']}
