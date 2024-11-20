@@ -37,7 +37,7 @@ function uploadsystem_info(){
 		"website"	=> "https://github.com/little-evil-genius",
 		"author"	=> "little.evil.genius",
 		"authorsite"	=> "https://storming-gates.de/member.php?action=profile&uid=1712",
-		"version"	=> "1.1",
+		"version"	=> "1.1.1",
 		"compatibility" => "18*"
 	);
 }
@@ -437,29 +437,6 @@ function uploadsystem_admin_manage() {
     
             $page->add_breadcrumb_item($lang->uploadsystem_manage_add_upload);
     
-            // Editor scripts
-            $page->extra_header .= '
-            <link rel="stylesheet" href="../jscripts/sceditor/themes/mybb.css" type="text/css" media="all" />
-            <script type="text/javascript" src="../jscripts/sceditor/jquery.sceditor.bbcode.min.js?ver=1822"></script>
-            <script type="text/javascript" src="../jscripts/bbcodes_sceditor.js?ver=1827"></script>
-            <script type="text/javascript" src="../jscripts/sceditor/plugins/undo.js?ver=1805"></script>
-            <link href="./jscripts/codemirror/lib/codemirror.css?ver=1813" rel="stylesheet">
-            <link href="./jscripts/codemirror/theme/mybb.css?ver=1813" rel="stylesheet">
-            <script src="./jscripts/codemirror/lib/codemirror.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/mode/xml/xml.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/mode/javascript/javascript.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/mode/css/css.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/mode/htmlmixed/htmlmixed.js?ver=1813"></script>
-            <link href="./jscripts/codemirror/addon/dialog/dialog-mybb.css?ver=1813" rel="stylesheet">
-            <script src="./jscripts/codemirror/addon/dialog/dialog.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/addon/search/searchcursor.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/addon/search/search.js?ver=1821"></script>
-            <script src="./jscripts/codemirror/addon/fold/foldcode.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/addon/fold/xml-fold.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/addon/fold/foldgutter.js?ver=1813"></script>
-            <link href="./jscripts/codemirror/addon/fold/foldgutter.css?ver=1813" rel="stylesheet">
-            ';
-    
             // Build options header
             $page->output_header($lang->uploadsystem_manage_header." - ".$lang->uploadsystem_manage_add_upload);
     
@@ -532,7 +509,8 @@ function uploadsystem_admin_manage() {
     
             // erlaubte Dateitypen
             $checkbox_extensions = "";
-            foreach($extensions_values as $value){
+            $extensions_values_low = explode (",", str_replace(", ", ",", $allowed_extensions));
+            foreach($extensions_values_low as $value){
                 $big_value = strtoupper($value);
                 $checkbox_extensions .= $form->generate_check_box($value, $value, $lang->sprintf($lang->uploadsystem_manage_add_upload_extensions_value, $big_value), array('checked' => $mybb->get_input($value), 'id' => $value)).",";
             }
@@ -571,7 +549,6 @@ function uploadsystem_admin_manage() {
                 $lang->uploadsystem_manage_add_upload_bytesize_desc,
                 $form->generate_numeric_field('bytesize', $mybb->get_input('bytesize'), array('id' => 'bytesize', 'min' => 0))
             );
-    
     
             $form_container->end();
             $buttons[] = $form->generate_submit_button($lang->uploadsystem_manage_add_upload_button);
@@ -694,29 +671,6 @@ function uploadsystem_admin_manage() {
     
             $page->add_breadcrumb_item($lang->uploadsystem_manage_edit_element);
     
-            // Editor scripts
-            $page->extra_header .= '
-            <link rel="stylesheet" href="../jscripts/sceditor/themes/mybb.css" type="text/css" media="all" />
-            <script type="text/javascript" src="../jscripts/sceditor/jquery.sceditor.bbcode.min.js?ver=1822"></script>
-            <script type="text/javascript" src="../jscripts/bbcodes_sceditor.js?ver=1827"></script>
-            <script type="text/javascript" src="../jscripts/sceditor/plugins/undo.js?ver=1805"></script>
-            <link href="./jscripts/codemirror/lib/codemirror.css?ver=1813" rel="stylesheet">
-            <link href="./jscripts/codemirror/theme/mybb.css?ver=1813" rel="stylesheet">
-            <script src="./jscripts/codemirror/lib/codemirror.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/mode/xml/xml.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/mode/javascript/javascript.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/mode/css/css.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/mode/htmlmixed/htmlmixed.js?ver=1813"></script>
-            <link href="./jscripts/codemirror/addon/dialog/dialog-mybb.css?ver=1813" rel="stylesheet">
-            <script src="./jscripts/codemirror/addon/dialog/dialog.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/addon/search/searchcursor.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/addon/search/search.js?ver=1821"></script>
-            <script src="./jscripts/codemirror/addon/fold/foldcode.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/addon/fold/xml-fold.js?ver=1813"></script>
-            <script src="./jscripts/codemirror/addon/fold/foldgutter.js?ver=1813"></script>
-            <link href="./jscripts/codemirror/addon/fold/foldgutter.css?ver=1813" rel="stylesheet">
-            ';
-    
             // Build options header
             $page->output_header($lang->uploadsystem_manage_header." - ".$lang->uploadsystem_manage_edit_element);
     
@@ -772,7 +726,8 @@ function uploadsystem_admin_manage() {
             $DBextensions_values = explode (",", $DBextensions_string);
        
             $checkbox_extensions = "";
-            foreach($extensions_values as $value){
+            $extensions_values_low = explode (",", str_replace(", ", ",", $allowed_extensions));
+            foreach($extensions_values_low as $value){
                 $big_value = strtoupper($value);
                 if (in_array($value, $DBextensions_values)) {
                     $mybb->input[$value] = 1;
@@ -1043,7 +998,6 @@ function uploadsystem_admin_manage() {
         
                     $db->update_query("uploadfiles", $del_upload, "ufid = '".$ufid."'");
 
-
                     $mybb->input['module'] = "Uploadsystem";
                     $mybb->input['action'] = $lang->sprintf($lang->uploadsystem_manage_edit_user_logadmin_remove, $user['username']);
                     log_admin_action(htmlspecialchars_uni($name)." Datei gelöscht");
@@ -1166,7 +1120,8 @@ function uploadsystem_admin_manage() {
                     }
                     
                     // Überprüfung der Dateiendung    
-                    $extensions_array = explode (", ", $allowextensions);
+                    $extensions_string = str_replace(", ", ",", strtolower($allowextensions).",".strtoupper($allowextensions));
+                    $extensions_array = explode (",", $extensions_string);
                     if(!in_array($imageFileType, $extensions_array) AND !empty($_FILES[$input_name]['name'])) {
                         $errors[] = $lang->sprintf($lang->uploadsystem_manage_edit_user_error_upload_file, $imageFileType);
                     }
@@ -1204,7 +1159,6 @@ function uploadsystem_admin_manage() {
                         );
                         $db->update_query("uploadfiles", $new_upload, "ufid = '".$ufid."'");
                     }
-
                 }
 			}
     
@@ -1299,7 +1253,6 @@ function uploadsystem_admin_manage() {
                 </div>
                 </div>
                 </form>';
-    
 
                 // Gesamtes Element
                 $form_container->output_cell('<style type="text/css">.uploadsystem_element_headline{background:#0f0f0f url(\'../../../images/tcat.png\') repeat-x;color:#fff;border-top:1px solid #444;border-bottom:1px solid #000;padding:6px;font-size:12px;margin-bottom:10px}.uploadsystem_element_main{display:flex;gap:10px;flex-wrap:nowrap;align-items:center;justify-content:space-between;padding:0 10px}.uploadsystem_element_info{text-align:justify}.uploadsystem_element_preview{background-size:100%;display:flex;justify-content:center;align-items:center;color:#6f6d6d;font-weight:700}.uploadsystem_upload{margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;padding:0 10px;align-items:center}.uploadsystem_upload_info{width:45%;border-right:1px solid;border-color:#ddd}.uploadsystem_upload_input{width:53%}.uploadsystem_upload_button{width:100%;text-align:center}</style>
@@ -1507,9 +1460,7 @@ function uploadsystem_admin_manage() {
 			$page->output_footer();
 			exit;
 		}
-
     }
-
 }
 
 // Stylesheet zum Master Style hinzufügen
@@ -1771,7 +1722,6 @@ function uploadsystem_usercp() {
 
             $db->update_query("uploadfiles", $del_upload, "ufid = '".$thisuser."'");
             redirect("usercp.php?action=uploadsystem", $lang->sprintf($lang->uploadsystem_redirect_remove, $name));
-
         } 
 
         // Dateityp ermittel (.png, .jpg, .gif)
@@ -2217,7 +2167,7 @@ function uploadsystem_uploadsig(){
     // EINSTELLUNGEN
     $allowed_extensions = $mybb->settings['uploadsystem_signatur_extensions'];
     $extensions_string = str_replace(", ", ",", strtolower($allowed_extensions).",".strtoupper($allowed_extensions));
-    $extensions_values = explode (",", $extensions_string);
+    $extensions_values = explode(",", $extensions_string);
     $signatur_max = $mybb->settings['uploadsystem_signatur_max'];
     $signatur_size = $mybb->settings['uploadsystem_signatur_size'];
 
@@ -2325,7 +2275,6 @@ function uploadsystem_uploadsig(){
             redirect("usercp.php?action=editsig", $lang->uploadsystem_signatur_redirect_error);
         }
     }
-
 }
 
 // Signatur Tpl
