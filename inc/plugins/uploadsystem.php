@@ -37,7 +37,7 @@ function uploadsystem_info(){
 		"website"	=> "https://github.com/little-evil-genius",
 		"author"	=> "little.evil.genius",
 		"authorsite"	=> "https://storming-gates.de/member.php?action=profile&uid=1712",
-		"version"	=> "1.1.1",
+		"version"	=> "1.1.2",
 		"compatibility" => "18*"
 	);
 }
@@ -183,7 +183,7 @@ function uploadsystem_settings_change(){
 
     $result = $db->simple_select('settinggroups', 'gid', "name='uploadsystem'", array("limit" => 1));
     $group = $db->fetch_array($result);
-    $uploadsystem_settings_peeker = ($mybb->input['gid'] == $group['gid']) && ($mybb->request_method != 'post');
+    $uploadsystem_settings_peeker = ($mybb->get_input('gid') == $group['gid']) && ($mybb->request_method != 'post');
 }
 function uploadsystem_settings_peek(&$peekers){
 
