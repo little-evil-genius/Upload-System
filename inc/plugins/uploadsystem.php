@@ -2093,6 +2093,9 @@ function uploadsystem_global(){
 
         $arraylabel = "files_{$identification}";
         $upload_data[$arraylabel] = $fieldvalue;
+
+	$mybb->user["uploadsystem_".$identification] = $upload_data[$identification];
+        $mybb->user["uploadsystem_".$arraylabel] = $upload_data[$arraylabel];
     }
 
 }
