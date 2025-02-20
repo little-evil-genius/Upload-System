@@ -85,9 +85,9 @@ Nur Dateiname (relevant für if Abfragen) <br>
 <br>
 <b>Global</b><br>
 Dateiname + Pfad <br>
-{$upload_data['identification']}<br>
+{$upload_data['identification']} oder {$mybb->user['uploadsystem_identification']}<br>
 Nur Dateiname (relevant für if Abfragen) <br>
-{$upload_data['files_identification']}
+{$upload_data['files_identification']} oder {$mybb->user['uploadsystem_files_identification']}
 
 # Demo
 # ACP
