@@ -37,7 +37,7 @@ function uploadsystem_info(){
 		"website"	=> "https://github.com/little-evil-genius",
 		"author"	=> "little.evil.genius",
 		"authorsite"	=> "https://storming-gates.de/member.php?action=profile&uid=1712",
-		"version"	=> "1.1.3",
+		"version"	=> "1.1.4",
 		"compatibility" => "18*"
 	);
 }
@@ -236,6 +236,7 @@ function uploadsystem_admin_manage() {
 
     // EINSTELLUNGEN
     $allowed_extensions = $mybb->settings['uploadsystem_allowed_extensions'];
+    $allowed_extensions = (string)($mybb->settings['uploadsystem_allowed_extensions'] ?? '');
     $extensions_string = str_replace(", ", ",", strtolower($allowed_extensions).",".strtoupper($allowed_extensions));
     $extensions_values = explode (",", $extensions_string);
 
@@ -397,6 +398,7 @@ function uploadsystem_admin_manage() {
                 if (empty($errors)) {
     
                     // Komma entfernen
+                    $checkbox_inputs = (string)($checkbox_inputs ?? '');
                     $checkbox_inputs = substr($checkbox_inputs, 0, -2);
 
                     // Ordner Pfad
@@ -511,6 +513,7 @@ function uploadsystem_admin_manage() {
             $checkbox_extensions = "";
             $extensions_values_low = explode (",", str_replace(", ", ",", $allowed_extensions));
             foreach($extensions_values_low as $value){
+                $value = (string)($value ?? '');
                 $big_value = strtoupper($value);
                 $checkbox_extensions .= $form->generate_check_box($value, $value, $lang->sprintf($lang->uploadsystem_manage_add_upload_extensions_value, $big_value), array('checked' => $mybb->get_input($value), 'id' => $value)).",";
             }
@@ -604,6 +607,7 @@ function uploadsystem_admin_manage() {
                     $usid = $mybb->get_input('usid', MyBB::INPUT_INT);
     
                     // Komma entfernen
+                    $checkbox_inputs = (string)($checkbox_inputs ?? '');
                     $checkbox_inputs = substr($checkbox_inputs, 0, -2);
     
                     // Umbennen, wenn nötig
@@ -728,6 +732,7 @@ function uploadsystem_admin_manage() {
             $checkbox_extensions = "";
             $extensions_values_low = explode (",", str_replace(", ", ",", $allowed_extensions));
             foreach($extensions_values_low as $value){
+                $value = (string)($value ?? '');
                 $big_value = strtoupper($value);
                 if (in_array($value, $DBextensions_values)) {
                     $mybb->input[$value] = 1;
@@ -1120,6 +1125,7 @@ function uploadsystem_admin_manage() {
                     }
                     
                     // Überprüfung der Dateiendung    
+                    $allowed_extensions = (string)($allowextensions ?? '');
                     $extensions_string = str_replace(", ", ",", strtolower($allowextensions).",".strtoupper($allowextensions));
                     $extensions_array = explode (",", $extensions_string);
                     if(!in_array($imageFileType, $extensions_array) AND !empty($_FILES[$input_name]['name'])) {
@@ -1227,9 +1233,11 @@ function uploadsystem_admin_manage() {
                 // Dateiformate
                 $extensions_array = explode (", ", $all['allowextensions']);
                 if (count($extensions_array) > 1) {
+                    $all['allowextensions'] = (string)($all['allowextensions'] ?? '');
                     $big_extensions = strtoupper($all['allowextensions']);
                     $extensions = $lang->sprintf($lang->uploadsystem_manage_edit_user_element_extensions_plural, $big_extensions);
                 } else {
+                    $all['allowextensions'] = (string)($all['allowextensions'] ?? '');
                     $big_extensions = strtoupper($all['allowextensions']);
                     $extensions = $lang->sprintf($lang->uploadsystem_manage_edit_user_element_extensions_singular, $big_extensions);
                 }
@@ -1538,6 +1546,10 @@ function uploadsystem_admin_update_plugin(&$table) {
 
             // Ob im Master Style die Überprüfung vorhanden ist
             $masterstylesheet = $db->fetch_field($db->query("SELECT stylesheet FROM ".TABLE_PREFIX."themestylesheets WHERE tid = 1 AND name = 'uploadsystem.css'"), "stylesheet");
+            $masterstylesheet = (string)($masterstylesheet ?? '');
+            $update_string = (string)($update_string ?? '');
+            $masterstylesheet = (string)($masterstylesheet ?? '');
+            $update_string = (string)($update_string ?? '');
             $pos = strpos($masterstylesheet, $update_string);
             if ($pos === false) { // nicht vorhanden 
             
@@ -1814,7 +1826,8 @@ function uploadsystem_usercp() {
             }
         }
         
-        // Überprüfung der Dateiendung    
+        // Überprüfung der Dateiendung
+        $allowextensions = (string)($allowextensions ?? '');
         $extensions_array = explode (", ", strtolower($allowextensions).", ".strtoupper($allowextensions));
         if(!in_array($imageFileType, $extensions_array) AND !empty($_FILES[$input_name]['name'])) {
             $uploadsystem_error[] = $lang->sprintf($lang->uploadsystem_error_upload_file, $imageFileType);
@@ -1953,9 +1966,11 @@ function uploadsystem_usercp() {
             // Dateiformate
             $extensions_array = explode (", ", $allowextensions);
             if (count($extensions_array) > 1) {
+                $allowextensions = (string)($allowextensions ?? '');
                 $big_extensions = strtoupper($allowextensions);
                 $extensions = $lang->sprintf($lang->uploadsystem_usercp_element_extensions_plural, $big_extensions);
             } else {
+                $allowextensions = (string)($allowextensions ?? '');
                 $big_extensions = strtoupper($allowextensions);
                 $extensions = $lang->sprintf($lang->uploadsystem_usercp_element_extensions_singular, $big_extensions);
             }
@@ -2065,6 +2080,7 @@ function uploadsystem_global(){
 
         if ($mybb->user['uid'] == '0' || $fieldvalue == '') {
             $allowextensions = $db->fetch_field($db->simple_select("uploadsystem", "allowextensions", "identification = '".$identification."'"), "allowextensions");
+            $allowextensions = (string)($allowextensions ?? '');
             $allowed_formats = explode (", ", strtolower($allowextensions).", ".strtoupper($allowextensions));  
 
             $themesdir = str_replace($mybb->settings['bburl']."/", "", $theme['imgdir']);
@@ -2107,7 +2123,7 @@ function uploadsystem_build_view($uid){
 
   // Rückgabe als Array, also einzelne Variablen die sich ansprechen lassen
 
-    $array = array();
+  $array = array();
     
     //erst einmal Indientifikatoren bekommen
     $allidentification_query = $db->query("SELECT identification FROM ".TABLE_PREFIX."uploadsystem");
@@ -2126,6 +2142,7 @@ function uploadsystem_build_view($uid){
 
         if ($mybb->user['uid'] == '0' || $fieldvalue == '') {
             $allowextensions = $db->fetch_field($db->simple_select("uploadsystem", "allowextensions", "identification = '".$identification."'"), "allowextensions");
+            $allowextensions = (string)($allowextensions ?? '');
             $allowed_formats = explode (", ", strtolower($allowextensions).", ".strtoupper($allowextensions));  
 
             $themesdir = str_replace($mybb->settings['bburl']."/", "", $theme['imgdir']);  
@@ -2169,6 +2186,7 @@ function uploadsystem_uploadsig(){
 
     // EINSTELLUNGEN
     $allowed_extensions = $mybb->settings['uploadsystem_signatur_extensions'];
+    $allowed_extensions = (string)($allowed_extensions ?? '');
     $extensions_string = str_replace(", ", ",", strtolower($allowed_extensions).",".strtoupper($allowed_extensions));
     $extensions_values = explode(",", $extensions_string);
     $signatur_max = $mybb->settings['uploadsystem_signatur_max'];
