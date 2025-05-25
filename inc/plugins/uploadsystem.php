@@ -1,6 +1,4 @@
 <?php
-//error_reporting ( -1 );
-//ini_set ( 'display_errors', true );
 // Direktzugriff auf die Datei aus Sicherheitsgründen sperren
 if(!defined("IN_MYBB"))
 {
@@ -37,7 +35,7 @@ function uploadsystem_info(){
 		"website"	=> "https://github.com/little-evil-genius",
 		"author"	=> "little.evil.genius",
 		"authorsite"	=> "https://storming-gates.de/member.php?action=profile&uid=1712",
-		"version"	=> "1.1.4",
+		"version"	=> "1.1.5",
 		"compatibility" => "18*"
 	);
 }
@@ -1423,6 +1421,10 @@ function uploadsystem_admin_manage() {
                                 $user['upload_system'][$upload_file['identification']] = '';
                             }
                         }
+
+                        if (!isset($user['upload_system']['signatur'])) {
+                            $user['upload_system']['signatur'] = '';
+                        }
                     
                         $db->insert_query("uploadfiles", $user['upload_system'], false);
                     }
@@ -1626,6 +1628,10 @@ function uploadsystem_user_insert(&$dh){
             }
             $user['upload_system'][$upload_file['identification']] = '';
         }
+    }
+
+    if (!isset($user['upload_system']['signatur'])) {
+        $user['upload_system']['signatur'] = '';
     }
 
     $db->insert_query("uploadfiles", $user['upload_system'], false);
