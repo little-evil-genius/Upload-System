@@ -35,7 +35,7 @@ function uploadsystem_info(){
 		"website"	=> "https://github.com/little-evil-genius",
 		"author"	=> "little.evil.genius",
 		"authorsite"	=> "https://storming-gates.de/member.php?action=profile&uid=1712",
-		"version"	=> "1.1.5",
+		"version"	=> "1.1.4",
 		"compatibility" => "18*"
 	);
 }
@@ -1402,31 +1402,28 @@ function uploadsystem_admin_manage() {
 
 				if (isset($mybb->input['update'])) {
 
+                    $newuser = array(
+                        "signatur" => ''            
+                    );
+
+                    // Alle Felder
+                    $allFields = $db->query("SELECT identification FROM ".TABLE_PREFIX."uploadsystem");
+
+                    while ($field = $db->fetch_array($allFields)) {
+                        $key = $field['identification'];
+                        if (!isset($newuser[$key])) {
+                            $newuser[$key] = '';
+                        }
+                    }
+
                     // neue Accounts hinzufügen
                     $allUsers = $db->query("SELECT uid FROM ".TABLE_PREFIX."users
                     WHERE uid NOT IN(SELECT ufid FROM ".TABLE_PREFIX."uploadfiles)	
                     ");
                     
                     while ($users = $db->fetch_array($allUsers)) {
-                
-                        $user['upload_system']['ufid'] = $users['uid'];
-                    
-                        $uscache = $cache->read('uploadsystem');
-                    
-                        if(is_array($uscache)){
-                            foreach($uscache as $upload_file){
-                                if(array_key_exists($upload_file['identification'], $user['upload_system'])){
-                                    continue;
-                                }
-                                $user['upload_system'][$upload_file['identification']] = '';
-                            }
-                        }
-
-                        if (!isset($user['upload_system']['signatur'])) {
-                            $user['upload_system']['signatur'] = '';
-                        }
-                    
-                        $db->insert_query("uploadfiles", $user['upload_system'], false);
+                        $newuser['ufid'] = $users['uid']; 
+                        $db->insert_query("uploadfiles", $newuser, false);
                     }
 
 				}
@@ -1610,31 +1607,29 @@ function uploadsystem_admin_update_plugin(&$table) {
 // NEUER USER REGISTIERT SICH => ZEILE IN DB ERSTELLEN
 function uploadsystem_user_insert(&$dh){
 	
-    global $db, $cache, $dh, $user;
+    global $db;
 
-    $maxuid = $db->fetch_field($db->query("SELECT MAX(uid) FROM ".TABLE_PREFIX."users"), "MAX(uid)");
+    $uid = (int)$dh->uid;
+    if ($uid <= 0) {
+        return;
+    }
 
-    $user['upload_system']['ufid'] = $maxuid;
+    $newuser = array(
+        "ufid" => $uid,
+        "signatur" => ''                
+    );
 
-    $uscache = $cache->read('uploadsystem');
+    // Alle Felder    
+    $allFields = $db->query("SELECT identification FROM ".TABLE_PREFIX."uploadsystem");
 
-    if(is_array($uscache))
-    {
-        foreach($uscache as $upload_file)
-        {
-            if(array_key_exists($upload_file['identification'], $user['upload_system']))
-            {
-                continue;
-            }
-            $user['upload_system'][$upload_file['identification']] = '';
+    while ($field = $db->fetch_array($allFields)) {
+        $key = $field['identification'];
+        if (!isset($newuser[$key])) {
+            $newuser[$key] = '';
         }
     }
 
-    if (!isset($user['upload_system']['signatur'])) {
-        $user['upload_system']['signatur'] = '';
-    }
-
-    $db->insert_query("uploadfiles", $user['upload_system'], false);
+    $db->insert_query("uploadfiles", $newuser);
 }
 
 // UPLOADS ENTFERNEN VOM GELÖSCHTEN USER
