@@ -931,7 +931,7 @@ function uploadsystem_admin_manage() {
 
 			// keine User vorhanden
 			if($db->num_rows($query_allUser) == 0){
-                $form_container->output_cell($lang->uploadsystem_manage_userfiles_no_user, array("colspan" => 2));
+                $form_container->output_cell($lang->uploadsystem_manage_userfiles_no_users, array("colspan" => 2));
                 $form_container->construct_row();
 			}
 
@@ -1755,13 +1755,16 @@ function uploadsystem_usercp() {
         $width = $imgDimensions[0];
         $height = $imgDimensions[1];
 
-        // Überprüfung der Bildgröße
-        list($minwidth, $minheight) = preg_split('/[|x]/', my_strtolower($mindims));
-        list($maxwidth, $maxheight) = preg_split('/[|x]/', my_strtolower($maxdims));
-
         if(!empty($_FILES[$input_name]['name'])) {
+
+            // Überprüfung der Bildgröße
+            list($minwidth, $minheight) = preg_split('/[|x]/', my_strtolower($mindims));
+
             // Maximal Größe angegeben
             if (!empty($maxdims)) {
+                // Überprüfung der Bildgröße
+                list($maxwidth, $maxheight) = preg_split('/[|x]/', my_strtolower($maxdims));
+
                 // Max und Mini sind gleich groß => feste Bildgröße
                 if ($minwidth == $maxwidth AND $minheight == $maxheight) {
                     if($width != $minwidth || $height != $minheight){	
