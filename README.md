@@ -2,7 +2,7 @@
 Dieses Plugin erweitert das Forum um ein internes Uploadsystem für Grafiken. Hochgeladene Grafiken werden auf dem Webspace gespeichert und können anschließend über einen direkten Link oder eine Variable an verschiedenen Stellen im Forum eingebunden werden.<br>
 Im ACP können beliebig viele Upload-Elemente erstellt werden. Für jedes Element lassen sich individuelle Vorgaben festlegen, beispielsweise die erlaubten Dateiformate, die maximale Dateigröße sowie die minimalen und maximalen Abmessungen einer Grafik.<br>
 Für jedes Upload-Element wird automatisch ein eigener Ordner unterhalb von `uploads/uploadsystem` auf dem Webspace angelegt.<br>
-User:innen können ihre hochgeladenen Grafiken über eine eigene Seite im User-CP (oder, wenn das Plugin 'Character Control Panel' von Julia Roloff (sparks fly) kann es direkt dort eingebunden werden) verwalten. Zusätzlich besteht für das Team die Möglichkeit, die Grafiken im ACP einzusehen, zu löschen oder selbst Grafiken für einen Account hochzuladen.
+User:innen können ihre hochgeladenen Grafiken über eine eigene Seite im User-CP (oder, wenn das [Plugin 'Character Control Panel'](https://github.com/its-sparks-fly/character-control-panel-mybb) von Julia Roloff (sparks fly) kann es direkt dort eingebunden werden) verwalten. Zusätzlich besteht für das Team die Möglichkeit, die Grafiken im ACP einzusehen, zu löschen oder selbst Grafiken für einen Account hochzuladen.
 
 ### Bildumwandlung in WebP
 Hochgeladene Grafiken können automatisch in das **WebP-Format** umgewandelt werden. Dadurch lässt sich die Dateigröße reduzieren, ohne dass dabei auf eine gute Bildqualität verzichtet werden muss.
