@@ -66,7 +66,7 @@ function uploadsystem_info() {
 		"website"	=> "https://github.com/little-evil-genius/Upload-System",
 		"author"	=> "little.evil.genius",
 		"authorsite"	=> "https://storming-gates.de/member.php?action=profile&uid=1712",
-		"version"	=> "1.2",
+		"version"	=> "2.0",
 		"compatibility" => "18*"
 	);
 }
