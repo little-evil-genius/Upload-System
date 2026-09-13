@@ -1,56 +1,47 @@
 <?php
-$l['uploadsystem_usercp_nav'] = "Uploadsystem";
-$l['uploadsystem_usercp'] = "Uploadsystem";
-$l['uploadsystem_usercp_desc'] = "Hier habt ihr die Möglichkeit verschiedene Grafiken fürs Forum hochzuladen. Das hochladen funktioniert wie beim Avatar. Datei auswählen und auf den entsprechenden Button drücken.<br>
+$l['uploadsystem'] = "Uploadsystem";
+$l['uploadsystem_nav'] = "Uploadsystem";
+$l['uploadsystem_desc'] = "Hier habt ihr die Möglichkeit verschiedene Grafiken fürs Forum hochzuladen. Das hochladen funktioniert wie beim Avatar. Datei auswählen und auf den entsprechenden Button drücken.<br>
 Die Elemente haben unterschiedliche Kriterien, welche ihr euch vor dem hochladen durchlesen solltet, damit ihr euch nicht wundert, warum es zu Fehlern kommt. Ihr habt immer die Möglichkeit eurere Grafik zu ändern oder gar zu löschen.<br>
 Bei Fragen oder Problemen meldet euch einfach beim Team.";
 
-$l['uploadsystem_usercp_element_headline'] = "{1} ändern";
-$l['uploadsystem_usercp_element_dims_maxmin'] = "Die Datei kann eine Größe von {1} bis {2} Pixel besitzen.";
-$l['uploadsystem_usercp_element_dims_min'] = "Die <i>minimal</i> zulässige Größe beträgt {1} Pixel.";
-$l['uploadsystem_usercp_element_dims_one'] = "Die zulässige Größe beträgt {1} Pixel.";
-$l['uploadsystem_usercp_element_square'] = "Die Datei muss <b>quadratisch</b> sein.";
-$l['uploadsystem_usercp_element_extensions_plural'] = "Es sind {1} -Dateien zulässig.";
-$l['uploadsystem_usercp_element_extensions_singular'] = "Es sind nur {1} -Dateien zulässig.";
-$l['uploadsystem_usercp_element_size'] = "Die maximal zulässige Dateigröße beträgt {1}.";
-$l['uploadsystem_usercp_element_notice'] = "<b>Du benutzt derzeit ein hochgeladenes Bild. Wenn du ein anderes Bild wählst, wird das ältere Bild vom Server gelöscht.</b>";
-$l['uploadsystem_usercp_element_upload_headline'] = "{1} hochladen:";
-$l['uploadsystem_usercp_element_upload_subline'] = "Datei von eigenem Rechner hochladen.";
+$l['uploadsystem_container'] = "Upload-Element: {1}";
+$l['uploadsystem_upload'] = "{1} hochladen:";
+$l['uploadsystem_remove'] = "{1} löschen";
+$l['uploadsystem_url'] = "URL kopieren";
+$l['uploadsystem_dims_fixed'] = "Die exakten Abmessungen sind {1}x{2}{3}.";
+$l['uploadsystem_dims_maxmin'] = "Die Abmessungen sind von min. {1} bis max. {2}{3}.";
+$l['uploadsystem_dims_min'] = "Die <i>minimalen</i> Abmessungen sind {1}.";
+$l['uploadsystem_square'] = " Die Datei muss <i>quadratisch</i> sein.";
+$l['uploadsystem_extensions_plural'] = "Es sind {1} -Dateien zulässig.";
+$l['uploadsystem_extensions_singular'] = "Es sind nur {1} Dateien sind zulässig.";
+$l['uploadsystem_size'] = "Die maximal zulässige Dateigröße beträgt {1}.";
+$l['uploadsystem_noSize'] = "Es gibt keine Begrenzung bei der Dateigröße.";
+$l['uploadsystem_notice'] = "<br><br>Wenn du ein anderes Bild wählst, wird das ältere Bild vom Server gelöscht.</b>";
 
-$l['uploadsystem_usercp_element_button_add'] = "{1} hochladen";
-$l['uploadsystem_usercp_element_button_change'] = "{1} ändern";
-$l['uploadsystem_usercp_element_button_remove'] = "{1} löschen";
+$l['uploadsystem_upload_headline'] = "{1} hochladen:";
+$l['uploadsystem_upload_subline'] = "Datei von eigenem Rechner hochladen.";
+$l['uploadsystem_remove_checkbox'] = "<b>{1} löschen</b>";
 
-$l['uploadsystem_error_upload'] = "Es wurde keine Datei zum hochladen ausgewählt, bitte wähle eine Datei aus um sie hochzuladen.";
-$l['uploadsystem_error_upload_dims_fixed'] = "Die Datei entspricht nicht den zugelassenen Maßen von {1}x{2} Pixel (Breite x Höhe).";
-$l['uploadsystem_error_upload_dims_square'] = "Die Datei ist nicht quadratisch. Bitte wähle eine quadratische Datei aus.";
-$l['uploadsystem_error_upload_dims_squareMini'] = "Die Datei ist zu klein und nicht quadratisch. Die minimal zulässige Größe beträgt {1}x{2} Pixel (Breite x Höhe).";
-$l['uploadsystem_error_upload_dims_squareMax'] = "Die Datei ist zu groß und nicht quadratisch. Die maximal zulässige Größe beträgt {1}x{2} Pixel (Breite x Höhe).";
-$l['uploadsystem_error_upload_dims_mini'] = "Die Datei ist zu klein. Die minimal zulässige Größe beträgt {1}x{2} Pixel (Breite x Höhe).";
-$l['uploadsystem_error_upload_dims_max'] = "Die Datei ist zu groß. Die maximal zulässige Größe beträgt {1}x{2} Pixel (Breite x Höhe).";
-$l['uploadsystem_error_upload_size'] = "Die Datei ist größer als {1}, bitte wähle eine kleinere Datei aus.";
-$l['uploadsystem_error_upload_file'] = "Die Datei besitzt ein ungültiges Dateiformat ({1}), bitte wähle eine andere Datei aus.";
+$l['uploadsystem_button'] = "Upload-Elemente ändern";
 
-$l['uploadsystem_redirect_upload'] = "Die Datei ({1}) wurde erfolgreich hochgeladen. Du wirst jetzt zum Uploadsystem zurückgeleitet.";
-$l['uploadsystem_redirect_remove'] = "Die Datei ({1}) wurde erfolgreich gelöscht. Du wirst jetzt zum Uploadsystem zurückgeleitet.";
+$l['uploadsystem_retina_dims'] = " (Retina-Display: {1}x{2})";
+$l['uploadsystem_retina_checkbox'] = "Retina-freundliche Datei";
 
-$l['uploadsystem_usercp_signatur_headline'] = "Signatur-Datei hochladen:";
-$l['uploadsystem_usercp_signatur_link_headline'] = "Deine Signatur-Datei:";
-$l['uploadsystem_usercp_signatur_nofile'] = "Aktuell hast du keine Signatur-Datei hochgeladen.";
-$l['uploadsystem_usercp_signatur_notice'] = "Wenn du eine andere Datei wählst, wird die ältere Datei vom Server gelöscht.";
+$l['uploadsystem_signatur_headline'] = "Signatur-Datei hochladen:";
+$l['uploadsystem_signatur_nofile'] = "Aktuell hast du keine Signatur-Datei hochgeladen.";
+$l['uploadsystem_signatur_button_upload'] = "Signatur-Datei hochladen";
+$l['uploadsystem_signatur_button_remove'] = "Signatur-Datei löschen";
 
-$l['uploadsystem_usercp_signatur_button_add'] = "Signatur-Datei hochladen";
-$l['uploadsystem_usercp_signatur_button_change'] = "Signatur-Datei ändern";
-$l['uploadsystem_usercp_signatur_button_remove'] = "Signatur-Datei löschen";
+$l['uploadsystem_error_element'] = "<b>{1}</b>: ";
+$l['uploadsystem_error_upload'] = "Es wurde keine Datei zum hochladen ausgewählt.";
+$l['uploadsystem_error_extensions'] = "{1}Die Datei besitzt ein ungültiges Dateiformat.";
+$l['uploadsystem_error_bytesize'] = "{1}Die Datei ist größer als {2}.";
+$l['uploadsystem_error_imgDimensions'] = "{1}Die Datei ist kein gültiges Bild.";
+$l['uploadsystem_error_dims_fixed'] = "{1}Die Datei entspricht nicht den zugelassenen Abmessungen - {2}{3}.";
+$l['uploadsystem_error_dims_max'] = "{1}Die Datei ist von den Abmessungen zu groß - {2}{3}.";
+$l['uploadsystem_error_dims_min'] = "{1}Die Datei ist von den Abmessungen zu klein - {2}.";
+$l['uploadsystem_error_square'] = "{1}Die Datei ist nicht quadratisch";
 
-$l['uploadsystem_signatur_error_upload'] = "Es wurde keine Datei zum hochladen ausgewählt, bitte wähle eine Datei aus um sie hochzuladen.";
-$l['uploadsystem_signatur_error_upload_dims'] = "Die Datei ist zu groß. Die maximal zulässige Größe für Signaturen beträgt {1}x{2} Pixel (Breite x Höhe).";
-$l['uploadsystem_signatur_error_upload_size'] = "Die Datei ist größer als {1}, bitte wähle eine kleinere Datei aus.";
-$l['uploadsystem_signatur_error_upload_file'] = "Die Datei besitzt ein ungültiges Dateiformat ({1}), bitte wähle eine andere Datei aus.";
-
-$l['uploadsystem_signatur_redirect_upload'] = "Die Signatur-Datei wurde erfolgreich hochgeladen. Du wirst jetzt zurückgeleitet, um deine Signatur weiter bearbeiten zu können.";
-$l['uploadsystem_signatur_redirect_remove'] = "Die Signatur-Datei wurde erfolgreich vom Server gelöscht. Du wirst jetzt zurückgeleitet, um deine Signatur weiter bearbeiten zu können.";
-$l['uploadsystem_signatur_redirect_error'] = "Die Signatur-Datei wurde nicht hochgeladen und gespeichert. Wiederhole den Vorgang mit einer zulässigen Datei.<br>Du wirst jetzt zurückgeleitet, um deine Signatur weiter bearbeiten zu können.";
-
-$l['uploadsystem_onlinelocation'] = "Verwaltet gerade die <a href=\"usercp.php?action=uploadsystem\">eigenen hochgeladenen Dateien</a> im Benutzer Control-Panel.";
-?>
+$l['uploadsystem_redirect'] = "Deine Upload-Elemente wurde erfolgreich geändert.<br />Du wirst jetzt zu den Uploadsystem-Einstellungen zurückgeleitet.";
+$l['uploadsystem_online_location'] = "<a href=\"{1}.php?action=uploadsystem\">Ändert die Upload-Elemente</a>";
